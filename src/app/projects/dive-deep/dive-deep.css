@@ -1,0 +1,66 @@
+.dive-deep {
+  background-color: #0a0a0a;
+  min-height: 100vh;
+  width: 100%;
+  color: #fff;
+  font-family: var(--font-montserrat), "Montserrat", sans-serif;
+  overflow-x: hidden;
+}
+
+/* 3-Column Gallery */
+
+.dd-gallery {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  max-width: 1800px;
+  margin: 0 auto;
+  align-items: flex-start;
+}
+
+.dd-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  will-change: transform;
+}
+
+/* No initial offset — all columns start at top */
+
+/* Media items */
+
+.dd-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0;
+  width: 100%;
+}
+
+.dd-item img,
+.dd-item video {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dd-item:hover img,
+.dd-item:hover video {
+  transform: scale(1.03);
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .dd-gallery {
+    gap: 4px;
+    padding: 4px;
+  }
+
+  .dd-col {
+    gap: 4px;
+  }
+
+}

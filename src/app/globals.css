@@ -24,3 +24,24 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Back to Home */
+
+@layer components {
+  .back-home {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    z-index: 2;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-family: var(--font-montserrat), "Montserrat", sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+
+  .back-home:hover {
+    color: #fff;
+  }
+}
