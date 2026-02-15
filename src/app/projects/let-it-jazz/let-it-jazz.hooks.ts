@@ -96,6 +96,14 @@ export function useLetItJazz(tracks: PlaylistItem[]) {
   const [playerReady, setPlayerReady] = useState(false);
   const pendingPlayRef = useRef(false);
   const containerRef = useRef<HTMLElement | null>(null);
+  const wheelAccumRef = useRef(0);
+  const wheelLockRef = useRef(false);
+  const applySlideDepth = useCallback((swiper: SwiperType, activeIndex: number) => {
+    Array.from(swiper.slides).forEach((slideEl, index) => {
+      const distance = Math.abs(index - activeIndex);
+      slideEl.style.setProperty("--card-distance", String(distance));
+    });
+  }, []);
 
   // Extract colors from current track thumbnail and update gradient
   useEffect(() => {
@@ -179,14 +187,21 @@ export function useLetItJazz(tracks: PlaylistItem[]) {
       width: "0",
       videoId: tracks[initialSlide]?.videoId ?? "",
       playerVars: {
-        autoplay: 0,
+        autoplay: 1,
         controls: 0,
         disablekb: 1,
         fs: 0,
         modestbranding: 1,
+        playsinline: 1,
       },
       events: {
         onReady: () => {
+          try {
+            playerRef.current?.playVideo();
+            setIsPlaying(true);
+          } catch {
+            pendingPlayRef.current = true;
+          }
           if (pendingPlayRef.current) {
             pendingPlayRef.current = false;
             playerRef.current?.playVideo();
@@ -284,16 +299,57 @@ export function useLetItJazz(tracks: PlaylistItem[]) {
     swiperRef.current?.slideTo(prevIdx);
   }, [currentIndex, tracks.length, goToTrack]);
 
+  useEffect(() => {
+    if (tracks.length <= 1) return;
+    const container = containerRef.current ?? document.querySelector<HTMLElement>(".letitjazz");
+    if (!container) return;
+    containerRef.current = container;
+
+    let unlockTimer = 0;
+
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      if (wheelLockRef.current) return;
+
+      wheelAccumRef.current += event.deltaY;
+      const threshold = 50;
+      if (Math.abs(wheelAccumRef.current) < threshold) return;
+
+      const direction = Math.sign(wheelAccumRef.current);
+      wheelAccumRef.current = 0;
+      wheelLockRef.current = true;
+
+      if (direction > 0) {
+        next();
+      } else {
+        prev();
+      }
+
+      window.clearTimeout(unlockTimer);
+      unlockTimer = window.setTimeout(() => {
+        wheelLockRef.current = false;
+      }, 420);
+    };
+
+    container.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      container.removeEventListener("wheel", onWheel);
+      window.clearTimeout(unlockTimer);
+    };
+  }, [next, prev, tracks.length]);
+
   const onSlideChange = useCallback(
     (swiper: SwiperType) => {
+      applySlideDepth(swiper, swiper.activeIndex);
       goToTrack(swiper.activeIndex);
     },
-    [goToTrack]
+    [applySlideDepth, goToTrack]
   );
 
   const onSwiperInit = useCallback((swiper: SwiperType) => {
     swiperRef.current = swiper;
-  }, []);
+    applySlideDepth(swiper, swiper.activeIndex);
+  }, [applySlideDepth]);
 
   const onProgressInput = useCallback(() => {
     const player = playerRef.current;
@@ -302,6 +358,19 @@ export function useLetItJazz(tracks: PlaylistItem[]) {
       player.seekTo(Number(progress.value), true);
     }
   }, []);
+
+  const onDirectionalSlideClick = useCallback(
+    (clickedIndex: number) => {
+      if (clickedIndex < 0 || clickedIndex >= tracks.length) return;
+      const active = swiperRef.current?.activeIndex ?? currentIndex;
+      if (clickedIndex < active) {
+        prev();
+      } else if (clickedIndex > active) {
+        next();
+      }
+    },
+    [currentIndex, next, prev, tracks.length]
+  );
 
   return {
     progressRef,
@@ -313,6 +382,7 @@ export function useLetItJazz(tracks: PlaylistItem[]) {
     onSlideChange,
     onSwiperInit,
     onProgressInput,
+    onDirectionalSlideClick,
     currentTrack: tracks[currentIndex] ?? null,
   };
 }
