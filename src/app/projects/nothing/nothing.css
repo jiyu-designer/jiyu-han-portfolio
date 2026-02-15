@@ -1,0 +1,203 @@
+.nothing {
+  background-color: #0a0a0a;
+  color: #fff;
+  font-family: var(--font-montserrat), "Montserrat", sans-serif;
+  /* overflow-x: hidden breaks position: sticky — clip on sticky container instead */
+  overflow: clip;
+}
+
+/* ── Hero Section ── */
+
+.nothing-hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.nothing-hero__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.nothing-hero__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.nothing-hero__title {
+  font-size: clamp(3rem, 10vw, 10rem);
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #fff;
+  margin: 0;
+}
+
+/* ── Snap Carousel ── */
+
+.nothing-carousel {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.nothing-carousel__track {
+  display: flex;
+  gap: 0;
+  height: 100%;
+  will-change: transform;
+}
+
+.nothing-carousel__slide {
+  flex: 0 0 70vw;
+  width: 70vw;
+  height: 100%;
+}
+
+.nothing-carousel__slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Slide indicators */
+.nothing-carousel__indicators {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  z-index: 10;
+}
+
+.nothing-carousel__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transition: background 0.3s, transform 0.3s;
+}
+
+.nothing-carousel__dot--active {
+  background: #fff;
+  transform: scale(1.3);
+}
+
+/* ── Product Showcase ── */
+
+.nothing-showcase {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4rem;
+  padding: 2rem;
+}
+
+.nothing-showcase__image {
+  position: relative;
+  width: 50vw;
+  height: 50vh;
+  cursor: none;
+}
+
+.nothing-showcase__image img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Cursor-following circle */
+.nothing-showcase__circle {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border: 2px solid #000;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+}
+
+/* Hotspot dots */
+.nothing-showcase__dot {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1.5px solid rgba(0, 0, 0, 0.5);
+  transform: translate(-50%, -50%);
+  transition: transform 0.3s, background 0.3s;
+  pointer-events: none;
+}
+
+.nothing-showcase__dot--active {
+  background: #000;
+  transform: translate(-50%, -50%) scale(1.5);
+}
+
+/* Product info panel — always reserves space so layout doesn't shift */
+.nothing-showcase__info-wrapper {
+  width: 200px;
+  flex-shrink: 0;
+}
+
+.nothing-showcase__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nothing-showcase__name {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #0a0a0a;
+  margin: 0;
+}
+
+.nothing-showcase__price {
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: #555;
+  margin: 0;
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 768px) {
+  .nothing-hero__title {
+    font-size: clamp(2rem, 12vw, 5rem);
+    letter-spacing: 0.1em;
+  }
+
+  .nothing-showcase {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .nothing-showcase__image {
+    width: 90%;
+  }
+
+  .nothing-showcase__info {
+    align-items: center;
+    text-align: center;
+  }
+}
