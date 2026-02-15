@@ -5,16 +5,22 @@
     position: relative;
     width: 100%;
     height: 60vh;
-    overflow: hidden;
+    padding: 0 5vw;
+    /* Add padding to prevent clipping at edges */
+    overflow: visible;
+    /* Allow overflow so letters don't get cut off */
     user-select: none;
 }
 
 .letter {
     display: inline-block;
     font-size: 15vw;
+    /* kept as is, creates approx 80-90% width */
+    font-family: var(--font-montserrat), "Montserrat", sans-serif;
     font-weight: 900;
-    color: transparent;
-    -webkit-text-stroke: 2px rgba(255, 255, 255, 0.8);
+    color: #333;
+    /* Dark gray */
+    /* -webkit-text-stroke: 2px rgba(255, 255, 255, 0.8); removed stroke */
     position: relative;
     z-index: 10;
     cursor: default;
@@ -22,6 +28,7 @@
 }
 
 .letter:hover {
-    color: rgba(255, 255, 255, 0.1);
-    -webkit-text-stroke: 2px #fff;
+    color: #111;
+    /* Even darker on hover */
+    /* -webkit-text-stroke: 2px #fff; */
 }
