@@ -43,12 +43,25 @@ export default function ProjectsPage() {
             <h3 className="card__heading">Nostalgia</h3>
           </div>
         </a>
+        <a className="card" href="/projects/moving">
+          <div
+            className="card__background"
+            style={{
+              backgroundImage:
+                "url(/images/projects/Moving-main.png)",
+            }}
+          />
+          <div className="card__content">
+            <p className="card__category">Media Art</p>
+            <h3 className="card__heading">Moving</h3>
+          </div>
+        </a>
         <a className="card" href="https://linkstash.vercel.app/" target="_blank" rel="noopener noreferrer">
           <div
             className="card__background"
             style={{
               backgroundImage:
-               "url(/images/projects/Linkstash-main.png)",
+                "url(/images/projects/Linkstash-main.png)",
             }}
           />
           <div className="card__content">

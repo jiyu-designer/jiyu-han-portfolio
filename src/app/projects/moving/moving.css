@@ -1,0 +1,42 @@
+.moving-project {
+    min-height: 100vh;
+    background-color: #000;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: var(--font-montserrat), "Montserrat", sans-serif;
+}
+
+.moving-title {
+    font-size: 4rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    background: linear-gradient(45deg, #ff00cc, #3333ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.moving-category {
+    font-size: 1.5rem;
+    font-weight: 300;
+    opacity: 0.8;
+    margin-bottom: 2rem;
+}
+
+.back-link {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1rem;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+    margin-top: 2rem;
+}
+
+.back-link:hover {
+    opacity: 1;
+}
