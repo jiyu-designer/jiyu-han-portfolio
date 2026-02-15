@@ -33,6 +33,7 @@ const hotspots = [
 const SLIDE_VW = 70;
 
 function vwToPx(vw: number) {
+  if (typeof window === "undefined") return 0;
   return (vw / 100) * window.innerWidth;
 }
 
@@ -43,9 +44,13 @@ export default function NothingPage() {
   const isCarouselLocked = useRef(false);
   const enterTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  /* MotionValue for direct DOM control — no React re-render flash */
-  const trackX = useMotionValue(-vwToPx(SLIDE_VW));
+  /* MotionValue — start at 0, set correct position on mount */
+  const trackX = useMotionValue(0);
   const [realIndex, setRealIndex] = useState(0);
+
+  useEffect(() => {
+    trackX.set(-vwToPx(SLIDE_VW));
+  }, [trackX]);
 
   /* Product showcase hover state */
   const showcaseImgRef = useRef<HTMLDivElement>(null);
