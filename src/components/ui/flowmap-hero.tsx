@@ -228,10 +228,10 @@ export function FlowmapHero({ text = "JIYU HAN" }: FlowmapHeroProps) {
 
     const isTouchCapable = "ontouchstart" in window;
     if (isTouchCapable) {
-      window.addEventListener("touchstart", updateMouse, false);
-      window.addEventListener("touchmove", updateMouse, { passive: false });
+      container.addEventListener("touchstart", updateMouse, false);
+      container.addEventListener("touchmove", updateMouse, { passive: false });
     } else {
-      window.addEventListener("mousemove", updateMouse, false);
+      container.addEventListener("mousemove", updateMouse, false);
     }
 
     // Animation loop
@@ -265,10 +265,10 @@ export function FlowmapHero({ text = "JIYU HAN" }: FlowmapHeroProps) {
       cancelAnimationFrame(animId);
       window.removeEventListener("resize", resize);
       if (isTouchCapable) {
-        window.removeEventListener("touchstart", updateMouse);
-        window.removeEventListener("touchmove", updateMouse);
+        container.removeEventListener("touchstart", updateMouse);
+        container.removeEventListener("touchmove", updateMouse);
       } else {
-        window.removeEventListener("mousemove", updateMouse);
+        container.removeEventListener("mousemove", updateMouse);
       }
       if (container.contains(gl.canvas)) {
         container.removeChild(gl.canvas);

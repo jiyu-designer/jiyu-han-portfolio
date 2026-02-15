@@ -48,21 +48,12 @@ export function LiquidBackground() {
             ref={containerRef}
             className="absolute inset-0 z-0 h-full w-full m-0 p-0"
             style={{
-                touchAction: 'none',
                 fontFamily: '"Montserrat", serif'
             }}
         >
-            <style jsx global>{`
-                body, html {
-                    margin: 0;
-                    width: 100%;
-                    height: 100%;
-                    overflow: hidden;
-                }
-            `}</style>
             <canvas
                 ref={canvasRef}
-                className="fixed top-0 left-0 right-0 bottom-0 overflow-hidden pointer-events-auto"
+                className="absolute top-0 left-0 right-0 bottom-0 overflow-hidden pointer-events-auto"
                 style={{ width: '100%', height: '100%' }}
             />
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">

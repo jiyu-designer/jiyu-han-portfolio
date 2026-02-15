@@ -39,7 +39,6 @@ export default function MovingPage() {
             </div>
 
             {/* Navigation Buttons */}
-            {/* Navigation Buttons */}
             <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-4 z-50 pointer-events-none">
                 <button
                     onClick={handlePrev}
