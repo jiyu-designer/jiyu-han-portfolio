@@ -1,22 +1,179 @@
-import { ShaderAnimation } from "@/components/ui/shader-lines";
+"use client";
+
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+} from "react";
+import Link from "next/link";
+
+const HERO_LINES = [
+  { text: "JIYU HAN", direction: "left" },
+  { text: "SAAS DESIGN", direction: "right" },
+  { text: "AI ARTWORKS", direction: "left" },
+  { text: "VIBE CODING", direction: "right" },
+] as const;
 
 export default function Home() {
+  const mainRef = useRef<HTMLElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const buttonRef = useRef<HTMLAnchorElement>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const audioEnabledRef = useRef(false);
+  const hasPlayedRef = useRef(false);
+  const [maskVisible, setMaskVisible] = useState(false);
+  const [buttonInMask, setButtonInMask] = useState(false);
+  const [lineIndex, setLineIndex] = useState(0);
+
+  const unlockAudio = useCallback(async () => {
+    if (audioEnabledRef.current) return;
+
+    const Ctx = window.AudioContext;
+    if (!Ctx) return;
+
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = new Ctx();
+    }
+
+    if (audioCtxRef.current.state === "suspended") {
+      await audioCtxRef.current.resume();
+    }
+
+    audioEnabledRef.current = true;
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setLineIndex((prev) => (prev + 1) % HERO_LINES.length);
+    }, 1500);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useLayoutEffect(() => {
+    const setSlideDistance = () => {
+      const el = titleRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const maxDistance = Math.max((window.innerWidth - rect.width) / 2 - 24, 0);
+      const targetDistance = maxDistance * 0.7;
+      el.style.setProperty("--slide-distance", `${targetDistance.toFixed(2)}px`);
+    };
+
+    setSlideDistance();
+    window.addEventListener("resize", setSlideDistance);
+    return () => {
+      window.removeEventListener("resize", setSlideDistance);
+    };
+  }, [lineIndex]);
+
+  useEffect(() => {
+    if (!audioEnabledRef.current || !audioCtxRef.current) return;
+    if (!hasPlayedRef.current) {
+      hasPlayedRef.current = true;
+      return;
+    }
+
+    const ctx = audioCtxRef.current;
+    const now = ctx.currentTime;
+    const playAnalogTick = (
+      start: number,
+      freq: number,
+      gainValue: number,
+      duration: number,
+      accent = false
+    ) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const band = ctx.createBiquadFilter();
+      const low = ctx.createBiquadFilter();
+
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(freq, start);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.74, start + duration);
+
+      band.type = "bandpass";
+      band.frequency.setValueAtTime(accent ? 2400 : 1900, start);
+      band.Q.setValueAtTime(2.0, start);
+
+      low.type = "lowpass";
+      low.frequency.setValueAtTime(4300, start);
+
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(gainValue, start + 0.003);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+
+      osc.connect(band);
+      band.connect(low);
+      low.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + duration + 0.02);
+    };
+
+    playAnalogTick(now, 2100, 0.046, 0.032, true);
+    playAnalogTick(now + 0.118, 1650, 0.03, 0.028, false);
+  }, [lineIndex]);
+
+  useEffect(() => {
+    return () => {
+      if (audioCtxRef.current) {
+        void audioCtxRef.current.close();
+        audioCtxRef.current = null;
+      }
+    };
+  }, []);
+
+  const handleMouseMove = (e: MouseEvent<HTMLElement>) => {
+    void unlockAudio();
+    const root = mainRef.current;
+    if (!root) return;
+    root.style.setProperty("--mask-x", `${e.clientX}px`);
+    root.style.setProperty("--mask-y", `${e.clientY}px`);
+
+    const btn = buttonRef.current;
+    if (!btn) return;
+
+    const rect = btn.getBoundingClientRect();
+    const nearestX = Math.max(rect.left, Math.min(e.clientX, rect.right));
+    const nearestY = Math.max(rect.top, Math.min(e.clientY, rect.bottom));
+    const dx = e.clientX - nearestX;
+    const dy = e.clientY - nearestY;
+    const isInsideMask = dx * dx + dy * dy <= 150 * 150;
+    setButtonInMask(isInsideMask);
+  };
+
+  const currentLine = HERO_LINES[lineIndex];
+
   return (
-    <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden">
-      <ShaderAnimation />
-      <main className="pointer-events-none z-10 flex flex-col items-center justify-center gap-8 px-8 text-center">
-        <h1 className="font-[family-name:var(--font-montserrat)] text-6xl font-bold tracking-tighter text-white md:text-8xl">
-          Jiyu Han
-        </h1>
-        <div className="pointer-events-auto flex gap-4">
-          <a
-            href="/projects"
-            className="rounded-full bg-white px-6 py-3 text-sm font-medium text-black transition-transform hover:scale-105"
-          >
-            Enter
-          </a>
-        </div>
-      </main>
-    </div>
+    <main
+      ref={mainRef}
+      className="hero-main flex h-screen w-full items-center justify-center overflow-hidden bg-black"
+      data-mask-visible={maskVisible}
+      onMouseEnter={() => setMaskVisible(true)}
+      onMouseDown={() => void unlockAudio()}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={() => {
+        setMaskVisible(false);
+        setButtonInMask(false);
+      }}
+    >
+      <h1
+        ref={titleRef}
+        key={`${lineIndex}-${currentLine.text}`}
+        className={`hero-main-title hero-main-title--${currentLine.direction} text-white`}
+      >
+        {currentLine.text}
+      </h1>
+      <Link
+        ref={buttonRef}
+        href="/projects"
+        className={`hero-projects-btn ${buttonInMask ? "hero-projects-btn--in-mask" : ""}`}
+      >
+        View all Projects
+      </Link>
+    </main>
   );
 }

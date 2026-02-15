@@ -1,0 +1,63 @@
+$base : 220px;
+$num : 45;
+$color : #F06;
+
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    background: black;
+    overflow: hidden;
+    position: relative;
+    perspective: 1000px;
+    /* Enhanced 3D effect */
+}
+
+.b {
+    animation: spin 7s linear infinite;
+    transform-style: preserve-3d;
+    width: $base;
+    height: $base;
+    position: relative;
+}
+
+.c {
+    height: $base;
+    width: $base;
+    border: 1px solid $color;
+    border-radius: 99em;
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    @for $i from 1 through $num {
+        &:nth-child(#{$i}) {
+            border-color: $color;
+            animation: spin #{$num * .16}s linear #{$i * 0.04}s infinite;
+            opacity: $i * .006;
+        }
+
+        $color : adjust-hue($color, 7deg);
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotateY(360deg) rotateX(-360deg) rotateZ(360deg);
+    }
+}
+
+.container a {
+    color: mix(white, black, 20%);
+    text-decoration: none;
+    font-size: .9em;
+    margin: 5em 0 -5em;
+    transition: color 0.3s ease;
+    pointer-events: auto;
+
+    &:hover {
+        color: mix(white, black, 25%);
+    }
+}

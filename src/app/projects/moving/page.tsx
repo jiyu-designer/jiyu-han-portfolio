@@ -5,13 +5,14 @@ import "./moving.css";
 import Link from "next/link";
 import ParticleText from "./particle-text";
 import { LiquidBackground } from "@/components/ui/liquid-background";
+import { FlowmapHero } from "@/components/ui/flowmap-hero";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-// Update the components array to use LiquidBackground as the second item
-// Note: The user asked for "the second page", so we put it at index 1.
-// We'll keep InteractiveText imported but unused for now, or remove it if not needed.
-// Actually, let's remove InteractiveText from the array.
-const ART_COMPONENTS = [ParticleText, LiquidBackground];
+function MovingFlowmap() {
+    return <FlowmapHero text="Moving" />;
+}
+
+const ART_COMPONENTS = [ParticleText, LiquidBackground, MovingFlowmap];
 
 export default function MovingPage() {
     const [currentIndex, setCurrentIndex] = useState(0);
