@@ -27,6 +27,7 @@ const fragment = `
   precision highp int;
   uniform sampler2D tWater;
   uniform sampler2D tFlow;
+  uniform sampler2D tMask;
   uniform float uTime;
   varying vec2 vUv;
   uniform vec4 res;
@@ -49,8 +50,11 @@ const fragment = `
     vec3 tex = texture2D(tWater, myUV).rgb;
     vec3 tex2 = texture2D(tWater, myUV2).rgb;
     vec3 tex3 = texture2D(tWater, myUV3).rgb;
+    float mask = texture2D(tMask, vUv).r;
+    vec3 flowColor = vec3(tex.r, tex2.g, tex3.b);
+    vec3 color = mix(vec3(0.0), flowColor, mask);
 
-    gl_FragColor = vec4(tex.r, tex2.g, tex3.b, 1.0);
+    gl_FragColor = vec4(color, 1.0);
   }
 `;
 
@@ -91,6 +95,10 @@ export function FlowmapHero({ text = "JIYU HAN" }: FlowmapHeroProps) {
       minFilter: gl.LINEAR,
       magFilter: gl.LINEAR,
     });
+    const maskTexture = new Texture(gl, {
+      minFilter: gl.LINEAR,
+      magFilter: gl.LINEAR,
+    });
 
     const img = new Image();
     img.onload = () => {
@@ -128,10 +136,37 @@ export function FlowmapHero({ text = "JIYU HAN" }: FlowmapHeroProps) {
         },
         img: { value: new Vec2(IMG_SIZE[1], IMG_SIZE[0]) },
         tFlow: flowmap.uniform,
+        tMask: { value: maskTexture },
       },
     });
 
     const mesh = new Mesh(gl, { geometry, program });
+
+    const maskCanvas = document.createElement("canvas");
+    const maskCtx = maskCanvas.getContext("2d");
+
+    function updateMaskTexture() {
+      if (!maskCtx) return;
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const width = Math.max(1, Math.floor(window.innerWidth * dpr));
+      const height = Math.max(1, Math.floor(window.innerHeight * dpr));
+      maskCanvas.width = width;
+      maskCanvas.height = height;
+
+      maskCtx.clearRect(0, 0, width, height);
+      maskCtx.fillStyle = "#000";
+      maskCtx.fillRect(0, 0, width, height);
+
+      const fontSize = Math.min(width * 0.18, height * 0.7);
+      maskCtx.fillStyle = "#fff";
+      maskCtx.textAlign = "center";
+      maskCtx.textBaseline = "middle";
+      maskCtx.font = `900 ${fontSize}px Montserrat, sans-serif`;
+      maskCtx.fillText(text.toUpperCase(), width / 2, height / 2);
+
+      maskTexture.image = maskCanvas;
+    }
 
     function resize() {
       gl.canvas.width = window.innerWidth * 2.0;
@@ -149,6 +184,7 @@ export function FlowmapHero({ text = "JIYU HAN" }: FlowmapHeroProps) {
 
       renderer.setSize(window.innerWidth, window.innerHeight);
       aspect = window.innerWidth / window.innerHeight;
+      updateMaskTexture();
     }
 
     resize();
@@ -238,14 +274,9 @@ export function FlowmapHero({ text = "JIYU HAN" }: FlowmapHeroProps) {
         container.removeChild(gl.canvas);
       }
     };
-  }, []);
+  }, [text]);
 
   return (
-    <div ref={containerRef} className="flowmap-container">
-      {/* Text mask with mix-blend-mode: screen */}
-      <div className="flowmap-mask">
-        <h1 className="flowmap-text">{text}</h1>
-      </div>
-    </div>
+    <div ref={containerRef} className="flowmap-container" />
   );
 }

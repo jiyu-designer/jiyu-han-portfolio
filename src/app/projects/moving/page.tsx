@@ -9,10 +9,10 @@ import { FlowmapHero } from "@/components/ui/flowmap-hero";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 function MovingFlowmap() {
-    return <FlowmapHero text="Moving" />;
+    return <FlowmapHero text="MOVING" />;
 }
 
-const ART_COMPONENTS = [ParticleText, LiquidBackground, MovingFlowmap];
+const ART_COMPONENTS = [ParticleText, MovingFlowmap, LiquidBackground];
 
 export default function MovingPage() {
     const [currentIndex, setCurrentIndex] = useState(0);
