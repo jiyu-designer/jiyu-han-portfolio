@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import "./moving.css";
 import Link from "next/link";
 import ParticleText from "./particle-text";
+import OceanWaves from "./ocean-waves";
 import { LiquidBackground } from "@/components/ui/liquid-background";
 import { FlowmapHero } from "@/components/ui/flowmap-hero";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -12,7 +13,7 @@ function MovingFlowmap() {
     return <FlowmapHero text="MOVING" />;
 }
 
-const ART_COMPONENTS = [ParticleText, MovingFlowmap, LiquidBackground];
+const ART_COMPONENTS = [ParticleText, MovingFlowmap, LiquidBackground, OceanWaves];
 
 export default function MovingPage() {
     const [currentIndex, setCurrentIndex] = useState(0);
