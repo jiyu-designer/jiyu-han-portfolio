@@ -30,19 +30,6 @@ export default function ProjectsPage() {
             <h3 className="card__heading">Beyond with Humanity</h3>
           </div>
         </a>
-        <a className="card" href="/projects/nostalgia">
-          <div
-            className="card__background"
-            style={{
-              backgroundImage:
-                "url(/images/projects/Noting-main.png)",
-            }}
-          />
-          <div className="card__content">
-            <p className="card__category">Virtual Brand</p>
-            <h3 className="card__heading">Nostalgia</h3>
-          </div>
-        </a>
         <a className="card" href="/projects/moving">
           <div
             className="card__background"
@@ -54,6 +41,19 @@ export default function ProjectsPage() {
           <div className="card__content">
             <p className="card__category">Media Art</p>
             <h3 className="card__heading">Moving</h3>
+          </div>
+        </a>
+        <a className="card" href="/projects/nostalgia">
+          <div
+            className="card__background"
+            style={{
+              backgroundImage:
+                "url(/images/projects/Noting-main.png)",
+            }}
+          />
+          <div className="card__content">
+            <p className="card__category">Virtual Brand</p>
+            <h3 className="card__heading">Nostalgia</h3>
           </div>
         </a>
         <a className="card" href="https://linkstash.vercel.app/" target="_blank" rel="noopener noreferrer">

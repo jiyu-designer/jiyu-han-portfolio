@@ -13,7 +13,7 @@ export default function Home() {
             href="/projects"
             className="rounded-full bg-white px-6 py-3 text-sm font-medium text-black transition-transform hover:scale-105"
           >
-            View Projects
+            Enter
           </a>
         </div>
       </main>
