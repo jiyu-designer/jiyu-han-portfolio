@@ -30,7 +30,7 @@ export default function ProjectsPage() {
             <h3 className="card__heading">Beyond with Humanity</h3>
           </div>
         </a>
-        <a className="card" href="/projects/nothing">
+        <a className="card" href="/projects/nostalgia">
           <div
             className="card__background"
             style={{
@@ -40,7 +40,7 @@ export default function ProjectsPage() {
           />
           <div className="card__content">
             <p className="card__category">Virtual Brand</p>
-            <h3 className="card__heading">Nothing</h3>
+            <h3 className="card__heading">Nostalgia</h3>
           </div>
         </a>
         <a className="card" href="https://linkstash.vercel.app/" target="_blank" rel="noopener noreferrer">

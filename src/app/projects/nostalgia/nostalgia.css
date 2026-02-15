@@ -1,4 +1,4 @@
-.nothing {
+.nostalgia {
   background-color: #0a0a0a;
   color: #fff;
   font-family: var(--font-montserrat), "Montserrat", sans-serif;
@@ -8,14 +8,14 @@
 
 /* ── Hero Section ── */
 
-.nothing-hero {
+.nostalgia-hero {
   position: relative;
   width: 100%;
   height: 100vh;
   overflow: hidden;
 }
 
-.nothing-hero__video {
+.nostalgia-hero__video {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -23,7 +23,7 @@
   object-fit: cover;
 }
 
-.nothing-hero__overlay {
+.nostalgia-hero__overlay {
   position: absolute;
   inset: 0;
   display: flex;
@@ -32,7 +32,7 @@
   background: rgba(0, 0, 0, 0.3);
 }
 
-.nothing-hero__title {
+.nostalgia-hero__title {
   font-size: clamp(3rem, 10vw, 10rem);
   font-weight: 700;
   letter-spacing: 0.15em;
@@ -43,27 +43,27 @@
 
 /* ── Snap Carousel ── */
 
-.nothing-carousel {
+.nostalgia-carousel {
   position: relative;
   width: 100%;
   height: 100vh;
   overflow: hidden;
 }
 
-.nothing-carousel__track {
+.nostalgia-carousel__track {
   display: flex;
   gap: 0;
   height: 100%;
   will-change: transform;
 }
 
-.nothing-carousel__slide {
+.nostalgia-carousel__slide {
   flex: 0 0 70vw;
   width: 70vw;
   height: 100%;
 }
 
-.nothing-carousel__slide img {
+.nostalgia-carousel__slide img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -71,7 +71,7 @@
 }
 
 /* Slide indicators */
-.nothing-carousel__indicators {
+.nostalgia-carousel__indicators {
   position: absolute;
   bottom: 2rem;
   left: 50%;
@@ -81,7 +81,7 @@
   z-index: 10;
 }
 
-.nothing-carousel__dot {
+.nostalgia-carousel__dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -89,14 +89,14 @@
   transition: background 0.3s, transform 0.3s;
 }
 
-.nothing-carousel__dot--active {
+.nostalgia-carousel__dot--active {
   background: #fff;
   transform: scale(1.3);
 }
 
 /* ── Product Showcase ── */
 
-.nothing-showcase {
+.nostalgia-showcase {
   position: relative;
   width: 100%;
   height: 100vh;
@@ -108,14 +108,14 @@
   padding: 2rem;
 }
 
-.nothing-showcase__image {
+.nostalgia-showcase__image {
   position: relative;
   width: 50vw;
   height: 50vh;
   cursor: none;
 }
 
-.nothing-showcase__image img {
+.nostalgia-showcase__image img {
   width: 100%;
   height: 100%;
   display: block;
@@ -124,7 +124,7 @@
 }
 
 /* Cursor-following circle */
-.nothing-showcase__circle {
+.nostalgia-showcase__circle {
   position: absolute;
   width: 80px;
   height: 80px;
@@ -136,7 +136,7 @@
 }
 
 /* Hotspot dots */
-.nothing-showcase__dot {
+.nostalgia-showcase__dot {
   position: absolute;
   width: 10px;
   height: 10px;
@@ -148,31 +148,31 @@
   pointer-events: none;
 }
 
-.nothing-showcase__dot--active {
+.nostalgia-showcase__dot--active {
   background: #000;
   transform: translate(-50%, -50%) scale(1.5);
 }
 
 /* Product info panel — always reserves space so layout doesn't shift */
-.nothing-showcase__info-wrapper {
+.nostalgia-showcase__info-wrapper {
   width: 200px;
   flex-shrink: 0;
 }
 
-.nothing-showcase__info {
+.nostalgia-showcase__info {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.nothing-showcase__name {
+.nostalgia-showcase__name {
   font-size: 1.5rem;
   font-weight: 600;
   color: #0a0a0a;
   margin: 0;
 }
 
-.nothing-showcase__price {
+.nostalgia-showcase__price {
   font-size: 1.25rem;
   font-weight: 400;
   color: #555;
@@ -182,21 +182,21 @@
 /* ── Responsive ── */
 
 @media (max-width: 768px) {
-  .nothing-hero__title {
+  .nostalgia-hero__title {
     font-size: clamp(2rem, 12vw, 5rem);
     letter-spacing: 0.1em;
   }
 
-  .nothing-showcase {
+  .nostalgia-showcase {
     flex-direction: column;
     gap: 2rem;
   }
 
-  .nothing-showcase__image {
+  .nostalgia-showcase__image {
     width: 90%;
   }
 
-  .nothing-showcase__info {
+  .nostalgia-showcase__info {
     align-items: center;
     text-align: center;
   }
