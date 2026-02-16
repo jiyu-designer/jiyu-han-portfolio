@@ -9,6 +9,7 @@ interface YTPlayer {
   playVideo: () => void;
   pauseVideo: () => void;
   loadVideoById: (videoId: string) => void;
+  cueVideoById: (videoId: string) => void;
   getCurrentTime: () => number;
   getDuration: () => number;
   seekTo: (seconds: number, allowSeekAhead: boolean) => void;
@@ -32,8 +33,11 @@ declare global {
     YT: {
       Player: new (elementId: string, options: YTPlayerOptions) => YTPlayer;
       PlayerState: {
+        UNSTARTED: number;
         ENDED: number;
         PLAYING: number;
+        BUFFERING: number;
+        CUED: number;
         PAUSED: number;
       };
     };
@@ -94,6 +98,7 @@ export function useLetItJazz(tracks: PlaylistItem[]) {
   const [currentIndex, setCurrentIndex] = useState(initialSlide);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playerReady, setPlayerReady] = useState(false);
+  const currentIndexRef = useRef(initialSlide);
   const pendingPlayRef = useRef(false);
   const containerRef = useRef<HTMLElement | null>(null);
   const wheelAccumRef = useRef(0);
@@ -104,6 +109,10 @@ export function useLetItJazz(tracks: PlaylistItem[]) {
       slideEl.style.setProperty("--card-distance", String(distance));
     });
   }, []);
+
+  useEffect(() => {
+    currentIndexRef.current = currentIndex;
+  }, [currentIndex]);
 
   // Extract colors from current track thumbnail and update gradient
   useEffect(() => {
@@ -198,7 +207,6 @@ export function useLetItJazz(tracks: PlaylistItem[]) {
         onReady: () => {
           try {
             playerRef.current?.playVideo();
-            setIsPlaying(true);
           } catch {
             pendingPlayRef.current = true;
           }
@@ -209,14 +217,16 @@ export function useLetItJazz(tracks: PlaylistItem[]) {
         },
         onStateChange: (event) => {
           if (event.data === window.YT.PlayerState.ENDED) {
-            const nextIdx = (currentIndex + 1) % tracks.length;
+            const nextIdx = (currentIndexRef.current + 1) % tracks.length;
             setCurrentIndex(nextIdx);
             swiperRef.current?.slideTo(nextIdx);
             playerRef.current?.loadVideoById(tracks[nextIdx].videoId);
-            setIsPlaying(true);
           } else if (event.data === window.YT.PlayerState.PLAYING) {
             setIsPlaying(true);
-          } else if (event.data === window.YT.PlayerState.PAUSED) {
+          } else if (
+            event.data === window.YT.PlayerState.PAUSED
+            || event.data === window.YT.PlayerState.CUED
+          ) {
             setIsPlaying(false);
           }
         },
@@ -276,7 +286,9 @@ export function useLetItJazz(tracks: PlaylistItem[]) {
       if (player) {
         try {
           player.loadVideoById(tracks[index].videoId);
-          setIsPlaying(true);
+          // On some mobile browsers, loadVideoById can end up in "cued/paused" state.
+          // Explicit play keeps next/prev and swipe transitions reliably playing.
+          player.playVideo();
         } catch {
           pendingPlayRef.current = true;
         }
@@ -287,16 +299,24 @@ export function useLetItJazz(tracks: PlaylistItem[]) {
 
   const next = useCallback(() => {
     if (tracks.length === 0) return;
-    const nextIdx = (currentIndex + 1) % tracks.length;
-    goToTrack(nextIdx);
-    swiperRef.current?.slideTo(nextIdx);
+    const active = swiperRef.current?.activeIndex ?? currentIndex;
+    const nextIdx = (active + 1) % tracks.length;
+    if (swiperRef.current) {
+      swiperRef.current.slideTo(nextIdx);
+    } else {
+      goToTrack(nextIdx);
+    }
   }, [currentIndex, tracks.length, goToTrack]);
 
   const prev = useCallback(() => {
     if (tracks.length === 0) return;
-    const prevIdx = (currentIndex - 1 + tracks.length) % tracks.length;
-    goToTrack(prevIdx);
-    swiperRef.current?.slideTo(prevIdx);
+    const active = swiperRef.current?.activeIndex ?? currentIndex;
+    const prevIdx = (active - 1 + tracks.length) % tracks.length;
+    if (swiperRef.current) {
+      swiperRef.current.slideTo(prevIdx);
+    } else {
+      goToTrack(prevIdx);
+    }
   }, [currentIndex, tracks.length, goToTrack]);
 
   useEffect(() => {
