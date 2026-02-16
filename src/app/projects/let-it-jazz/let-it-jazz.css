@@ -361,3 +361,53 @@
 .play-pause-btn .icon-pause {
   transform: translateX(0);
 }
+
+/* ── Mobile ── */
+
+@media (max-width: 768px) {
+  .letitjazz__title {
+    font-size: clamp(1.5rem, 6vw, 3rem);
+  }
+
+  .music-player {
+    width: 90%;
+    max-width: 380px;
+    padding: 10px 16px;
+  }
+
+  .music-player h1 {
+    font-size: 1.2rem;
+  }
+
+  .music-player p {
+    font-size: 0.85rem;
+  }
+
+  .letitjazz .swiper-slide {
+    max-width: 180px;
+  }
+
+  .letitjazz .swiper {
+    padding: 24px 0 60px;
+  }
+
+  .controls button {
+    width: 42px;
+    margin: 12px;
+  }
+
+  #progress {
+    margin: 20px 0 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .letitjazz .swiper-slide {
+    max-width: 150px;
+  }
+
+  .controls button {
+    width: 38px;
+    margin: 8px;
+  }
+}

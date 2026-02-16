@@ -75,3 +75,16 @@
     line-height: 0.9;
     letter-spacing: 0;
 }
+
+/* ── Mobile ── */
+
+@media (max-width: 768px) {
+  .moving-title {
+    font-size: clamp(2rem, 8vw, 4rem);
+    letter-spacing: 0.1em;
+  }
+
+  .moving-category {
+    font-size: clamp(1rem, 3.5vw, 1.5rem);
+  }
+}

@@ -104,3 +104,38 @@
   line-height: 1.2;
   word-spacing: 100vw;
 }
+
+/* ── Mobile ── */
+
+@media (max-width: 539px) {
+  .card-grid {
+    height: 100vh;
+    grid-template-rows: repeat(5, 1fr);
+  }
+
+  .card__content {
+    padding: var(--spacing-m);
+  }
+
+  .card__category {
+    font-size: 0.85rem;
+    margin-bottom: var(--spacing-s);
+  }
+
+  .card__heading {
+    font-size: 1.5rem;
+    word-spacing: normal;
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 540px) and (max-width: 959px) {
+  .card-grid {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .card {
+    min-height: 33vh;
+  }
+}

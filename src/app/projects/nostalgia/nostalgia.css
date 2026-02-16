@@ -252,16 +252,28 @@
 
   .nostalgia-showcase {
     flex-direction: column;
+    height: auto;
+    min-height: 100vh;
     gap: 2rem;
+    padding: 4rem 1.5rem;
   }
 
   .nostalgia-showcase__image {
     width: 90%;
+    height: 40vh;
+  }
+
+  .nostalgia-showcase__info-wrapper {
+    width: auto;
   }
 
   .nostalgia-showcase__info {
     align-items: center;
     text-align: center;
+  }
+
+  .nostalgia-showcase__circle {
+    display: none;
   }
 
   .nostalgia-lookbook__sticky {
@@ -272,5 +284,11 @@
     width: clamp(100px, 28vw, 150px);
     margin-left: calc(clamp(100px, 28vw, 150px) / -2);
     margin-top: calc(clamp(100px, 28vw, 150px) * -2 / 3);
+  }
+
+  .nostalgia-bgm-btn {
+    bottom: 32px;
+    padding: 10px 20px;
+    font-size: 0.75rem;
   }
 }

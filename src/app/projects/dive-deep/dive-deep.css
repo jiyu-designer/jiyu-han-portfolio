@@ -55,6 +55,8 @@
 
 @media (max-width: 768px) {
   .dd-gallery {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 4px;
     padding: 4px;
   }
@@ -63,4 +65,19 @@
     gap: 4px;
   }
 
+  /* Left column stays in col 1 */
+  .dd-col--left {
+    grid-column: 1;
+  }
+
+  /* Center column appends below left in col 1 */
+  .dd-col--center {
+    grid-column: 1;
+  }
+
+  /* Right column spans full col 2 */
+  .dd-col--right {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
 }

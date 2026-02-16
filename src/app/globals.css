@@ -75,6 +75,18 @@ body {
   z-index: 3;
 }
 
+.hero-word {
+  display: inline;
+}
+
+.hero-word + .hero-word::before {
+  content: " ";
+}
+
+.hero-text--mobile {
+  display: none;
+}
+
 .hero-projects-btn {
   position: fixed;
   left: 50%;
@@ -107,6 +119,46 @@ body {
   background: transparent !important;
   color: #000 !important;
   border-color: #000 !important;
+}
+
+.hero-email {
+  position: fixed;
+  left: 48px;
+  top: 36px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  font-family: var(--font-montserrat), "Montserrat", sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.5);
+  z-index: 4;
+}
+
+.hero-social {
+  position: fixed;
+  right: 48px;
+  top: 36px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  z-index: 4;
+}
+
+.hero-social__link {
+  font-family: var(--font-montserrat), "Montserrat", sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.hero-social__link:hover {
+  color: #fff;
 }
 
 .hero-main-title--left {
@@ -144,22 +196,112 @@ body {
 
 /* Back to Home */
 
-@layer components {
-  .back-home {
-    position: absolute;
-    top: 24px;
-    left: 24px;
-    z-index: 2;
-    color: rgba(255, 255, 255, 0.7);
-    text-decoration: none;
-    font-family: var(--font-montserrat), "Montserrat", sans-serif;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: color 0.3s ease;
+.back-home {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 2;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-family: var(--font-montserrat), "Montserrat", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.back-home:hover {
+  color: #fff;
+}
+
+/* ── Hero 3D Text ─────────────────────────────── */
+
+/* ── Hero Mobile ─────────────────────────────── */
+
+@media (max-width: 768px) {
+  .hero-main::after {
+    display: none;
   }
 
-  .back-home:hover {
-    color: #fff;
+  .hero-main-title {
+    white-space: nowrap;
+  }
+
+  .hero-text--desktop {
+    display: none;
+  }
+
+  .hero-text--mobile {
+    display: inline;
+  }
+
+  .hero-word {
+    display: block;
+  }
+
+  .hero-social {
+    right: 20px;
+    top: 24px;
+    gap: 16px;
+  }
+
+  .hero-social__link {
+    font-size: 0.9rem;
+  }
+
+  .hero-email {
+    display: none;
+  }
+
+  .hero-projects-btn {
+    bottom: 48px;
+    padding: 10px 22px;
+    font-size: 0.8rem;
+  }
+
+  .back-home {
+    top: 24px;
+    left: 24px;
+    font-size: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .back-home::before {
+    content: "";
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-left: 2px solid rgba(255, 255, 255, 0.7);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.7);
+    transform: rotate(45deg);
+    transition: border-color 0.3s ease;
+  }
+
+  .back-home:hover::before {
+    border-color: #fff;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-social {
+    position: fixed;
+    right: auto;
+    left: 50%;
+    top: 24px;
+    bottom: auto;
+    transform: translateX(-50%);
+    gap: 20px;
+  }
+
+  .hero-social__link {
+    font-size: 0.85rem;
+  }
+
+  .hero-projects-btn {
+    bottom: 48px;
   }
 }
 

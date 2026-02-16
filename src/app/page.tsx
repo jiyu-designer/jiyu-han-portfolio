@@ -11,10 +11,10 @@ import {
 import Link from "next/link";
 
 const HERO_LINES = [
-  { text: "JIYU HAN", direction: "left" },
-  { text: "SAAS DESIGN", direction: "right" },
-  { text: "AI ARTWORKS", direction: "left" },
-  { text: "VIBE CODING", direction: "right" },
+  { text: "JIYU HAN", mobileText: "JIYU HAN", direction: "left" },
+  { text: "SAAS DESIGN", mobileText: "SAAS DESIGN", direction: "right" },
+  { text: "AI ARTWORKS", mobileText: "AI ART", direction: "left" },
+  { text: "VIBE CODING", mobileText: "VIBE CODING", direction: "right" },
 ] as const;
 
 export default function Home() {
@@ -207,7 +207,16 @@ export default function Home() {
         key={`${lineIndex}-${currentLine.text}`}
         className={`hero-main-title hero-main-title--${currentLine.direction} text-white`}
       >
-        {currentLine.text}
+        <span className="hero-text--desktop">
+          {currentLine.text.split(" ").map((word, i) => (
+            <span key={i} className="hero-word">{word}</span>
+          ))}
+        </span>
+        <span className="hero-text--mobile">
+          {currentLine.mobileText.split(" ").map((word, i) => (
+            <span key={i} className="hero-word">{word}</span>
+          ))}
+        </span>
       </h1>
       <Link
         ref={buttonRef}
@@ -216,6 +225,13 @@ export default function Home() {
       >
         View all Projects
       </Link>
+
+      <span className="hero-email">jiyu0719@gmail.com</span>
+
+      <div className="hero-social">
+        <a href="https://www.linkedin.com/in/jiyuhan-designer/" target="_blank" rel="noopener noreferrer" className="hero-social__link">Linkedin</a>
+        <a href="https://brunch.co.kr/@jiyuhan#articles" target="_blank" rel="noopener noreferrer" className="hero-social__link">Brunch</a>
+      </div>
     </main>
   );
 }
