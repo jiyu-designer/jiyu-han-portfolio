@@ -127,6 +127,10 @@
     word-spacing: normal;
     white-space: nowrap;
   }
+
+  .card-grid:hover > .card:not(:hover) .card__background {
+    filter: brightness(0.5) saturate(0.5) contrast(1.2);
+  }
 }
 
 @media (min-width: 540px) and (max-width: 959px) {
@@ -137,5 +141,9 @@
 
   .card {
     min-height: 33vh;
+  }
+
+  .card-grid:hover > .card:not(:hover) .card__background {
+    filter: brightness(0.5) saturate(0.5) contrast(1.2);
   }
 }

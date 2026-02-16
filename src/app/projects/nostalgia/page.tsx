@@ -162,8 +162,8 @@ function gridPos(i: number) {
   const col = i % cols;
   const row = Math.floor(i / cols);
   const gap = isMobile ? 14 : 20;
-  const cardW = isMobile ? 80 : 180;
-  const cardH = isMobile ? 107 : 240; // maintain 3:4 aspect ratio
+  const cardW = isMobile ? 92 : 180;
+  const cardH = isMobile ? 123 : 240; // maintain 3:4 aspect ratio
   const rows = isMobile ? 4 : 2; // 5 rows total (0-4) on mobile, 3 rows (0-2) on desktop
   const totalH = rows * cardH + rows * gap;
   return {
@@ -193,11 +193,14 @@ function LookbookCard({
 
   const transform = useTransform(scrollYProgress, (p) => {
     let x: number, y: number, z: number, rY: number, rX: number, rZ: number;
+    let mobileScale = 1;
+    const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
 
     if (p <= 0.15) {
       /* ── Scattered ── */
       x = s.x; y = s.y; z = s.z;
       rY = s.rotY; rX = s.rotX; rZ = s.rotZ;
+      if (isMobile) mobileScale = 1.55;
     } else if (p <= 0.35) {
       /* ── Scattered → Cylinder ── */
       const t = smoothstep((p - 0.15) / 0.2);
@@ -210,6 +213,7 @@ function LookbookCard({
       rY = lerp(s.rotY, faceY, t);
       rX = s.rotX * (1 - t);
       rZ = s.rotZ * (1 - t);
+      if (isMobile) mobileScale = lerp(1.55, 1.32, t);
     } else if (p <= 0.6) {
       /* ── Cylinder rotating ── */
       const rotProgress = (p - 0.35) / 0.25;
@@ -220,6 +224,7 @@ function LookbookCard({
       z = Math.sin(cur) * CYL_RADIUS;
       rY = 90 - (cur * 180) / Math.PI;
       rX = 0; rZ = 0;
+      if (isMobile) mobileScale = lerp(1.32, 1, smoothstep(rotProgress));
     } else if (p <= 0.8) {
       /* ── Cylinder → Grid ── */
       const t = smoothstep((p - 0.6) / 0.2);
@@ -238,7 +243,7 @@ function LookbookCard({
       rY = 0; rX = 0; rZ = 0;
     }
 
-    return `translate3d(${x}px, ${y}px, ${z}px) rotateY(${rY}deg) rotateX(${rX}deg) rotateZ(${rZ}deg)`;
+    return `translate3d(${x}px, ${y}px, ${z}px) rotateY(${rY}deg) rotateX(${rX}deg) rotateZ(${rZ}deg) scale(${mobileScale})`;
   });
 
   return (
