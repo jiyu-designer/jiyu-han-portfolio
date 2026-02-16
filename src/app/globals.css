@@ -53,9 +53,10 @@ body {
   pointer-events: none;
   z-index: 5;
   opacity: 0;
-  transition: opacity 180ms ease-out;
+  transition: opacity 120ms ease-out;
 }
 
+.hero-main:hover::after,
 .hero-main[data-mask-visible="true"]::after {
   opacity: 1;
 }

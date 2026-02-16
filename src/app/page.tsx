@@ -24,6 +24,7 @@ export default function Home() {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const audioEnabledRef = useRef(false);
   const hasPlayedRef = useRef(false);
+  const buttonInMaskRef = useRef(false);
   const [maskVisible, setMaskVisible] = useState(false);
   const [buttonInMask, setButtonInMask] = useState(false);
   const [lineIndex, setLineIndex] = useState(0);
@@ -126,24 +127,64 @@ export default function Home() {
     };
   }, []);
 
-  const handleMouseMove = (e: MouseEvent<HTMLElement>) => {
-    void unlockAudio();
+  const updateMask = useCallback((clientX: number, clientY: number) => {
     const root = mainRef.current;
     if (!root) return;
-    root.style.setProperty("--mask-x", `${e.clientX}px`);
-    root.style.setProperty("--mask-y", `${e.clientY}px`);
+    root.style.setProperty("--mask-x", `${clientX}px`);
+    root.style.setProperty("--mask-y", `${clientY}px`);
 
     const btn = buttonRef.current;
     if (!btn) return;
 
     const rect = btn.getBoundingClientRect();
-    const nearestX = Math.max(rect.left, Math.min(e.clientX, rect.right));
-    const nearestY = Math.max(rect.top, Math.min(e.clientY, rect.bottom));
-    const dx = e.clientX - nearestX;
-    const dy = e.clientY - nearestY;
+    const nearestX = Math.max(rect.left, Math.min(clientX, rect.right));
+    const nearestY = Math.max(rect.top, Math.min(clientY, rect.bottom));
+    const dx = clientX - nearestX;
+    const dy = clientY - nearestY;
     const isInsideMask = dx * dx + dy * dy <= 150 * 150;
-    setButtonInMask(isInsideMask);
+    if (buttonInMaskRef.current !== isInsideMask) {
+      buttonInMaskRef.current = isInsideMask;
+      setButtonInMask(isInsideMask);
+    }
+  }, []);
+
+  const handleMouseEnter = (e: MouseEvent<HTMLElement>) => {
+    setMaskVisible(true);
+    updateMask(e.clientX, e.clientY);
   };
+
+  const handleMouseMove = (e: MouseEvent<HTMLElement>) => {
+    void unlockAudio();
+    updateMask(e.clientX, e.clientY);
+  };
+
+  useEffect(() => {
+    const root = mainRef.current;
+    if (!root) return;
+    let rafId: number | null = null;
+
+    if (root.matches(":hover")) {
+      rafId = window.requestAnimationFrame(() => {
+        setMaskVisible(true);
+      });
+    }
+
+    const syncHoverMove = (e: globalThis.MouseEvent) => {
+      const current = mainRef.current;
+      if (!current) return;
+      if (!current.matches(":hover")) return;
+      setMaskVisible(true);
+      updateMask(e.clientX, e.clientY);
+    };
+
+    window.addEventListener("mousemove", syncHoverMove, { passive: true });
+    return () => {
+      if (rafId !== null) {
+        window.cancelAnimationFrame(rafId);
+      }
+      window.removeEventListener("mousemove", syncHoverMove);
+    };
+  }, [updateMask]);
 
   const currentLine = HERO_LINES[lineIndex];
 
@@ -152,11 +193,12 @@ export default function Home() {
       ref={mainRef}
       className="hero-main flex h-screen w-full items-center justify-center overflow-hidden bg-black"
       data-mask-visible={maskVisible}
-      onMouseEnter={() => setMaskVisible(true)}
+      onMouseEnter={handleMouseEnter}
       onMouseDown={() => void unlockAudio()}
       onMouseMove={handleMouseMove}
       onMouseLeave={() => {
         setMaskVisible(false);
+        buttonInMaskRef.current = false;
         setButtonInMask(false);
       }}
     >
