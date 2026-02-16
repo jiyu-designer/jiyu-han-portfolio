@@ -79,7 +79,7 @@ body {
   display: inline;
 }
 
-.hero-word + .hero-word::before {
+.hero-word+.hero-word::before {
   content: " ";
 }
 
@@ -115,16 +115,18 @@ body {
   border-color: #fff;
 }
 
-.hero-projects-btn--in-mask {
-  background: transparent !important;
-  color: #000 !important;
-  border-color: #000 !important;
+@media (min-width: 769px) {
+  .hero-projects-btn--in-mask {
+    background: transparent !important;
+    color: #000 !important;
+    border-color: #000 !important;
+  }
 }
 
 .hero-email {
   position: fixed;
   left: 48px;
-  top: 36px;
+  top: 20px;
   height: 38px;
   display: flex;
   align-items: center;
@@ -139,7 +141,7 @@ body {
 .hero-social {
   position: fixed;
   right: 48px;
-  top: 36px;
+  top: 20px;
   height: 38px;
   display: flex;
   align-items: center;
@@ -173,6 +175,7 @@ body {
   0% {
     transform: translateX(0);
   }
+
   100% {
     transform: translateX(calc(var(--slide-distance) * -1));
   }
@@ -182,6 +185,7 @@ body {
   0% {
     transform: translateX(0);
   }
+
   100% {
     transform: translateX(var(--slide-distance));
   }
@@ -204,13 +208,29 @@ body {
   color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
   font-family: var(--font-montserrat), "Montserrat", sans-serif;
-  font-size: 0.9rem;
+  font-size: 0;
   font-weight: 500;
   transition: color 0.3s ease;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.back-home:hover {
-  color: #fff;
+.back-home::before {
+  content: "";
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-left: 2px solid rgba(255, 255, 255, 0.7);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.7);
+  transform: rotate(45deg);
+  transition: border-color 0.3s ease;
+}
+
+.back-home:hover::before {
+  border-color: #fff;
 }
 
 /* ── Hero 3D Text ─────────────────────────────── */
@@ -224,6 +244,7 @@ body {
 
   .hero-main-title {
     white-space: nowrap;
+    font-size: clamp(3.85rem, 16.5vw, 9.9rem);
   }
 
   .hero-text--desktop {
@@ -256,32 +277,6 @@ body {
     bottom: 48px;
     padding: 10px 22px;
     font-size: 0.8rem;
-  }
-
-  .back-home {
-    top: 24px;
-    left: 24px;
-    font-size: 0;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .back-home::before {
-    content: "";
-    display: block;
-    width: 10px;
-    height: 10px;
-    border-left: 2px solid rgba(255, 255, 255, 0.7);
-    border-bottom: 2px solid rgba(255, 255, 255, 0.7);
-    transform: rotate(45deg);
-    transition: border-color 0.3s ease;
-  }
-
-  .back-home:hover::before {
-    border-color: #fff;
   }
 }
 

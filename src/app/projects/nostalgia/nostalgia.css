@@ -250,6 +250,10 @@
     letter-spacing: 0.1em;
   }
 
+  .nostalgia-zoom__sticky {
+    height: 80vh;
+  }
+
   .nostalgia-showcase {
     flex-direction: column;
     height: auto;
@@ -281,9 +285,9 @@
   }
 
   .nostalgia-lookbook__card {
-    width: clamp(100px, 28vw, 150px);
-    margin-left: calc(clamp(100px, 28vw, 150px) / -2);
-    margin-top: calc(clamp(100px, 28vw, 150px) * -2 / 3);
+    width: 80px;
+    margin-left: -40px;
+    margin-top: -53.5px;
   }
 
   .nostalgia-bgm-btn {

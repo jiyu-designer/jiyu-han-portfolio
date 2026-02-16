@@ -8,6 +8,7 @@ import "swiper/css";
 import "swiper/css/effect-coverflow";
 import Script from "next/script";
 import Link from "next/link";
+import Image from "next/image";
 import type { PlaylistItem } from "@/lib/youtube";
 
 function BackwardIcon() {
@@ -110,7 +111,13 @@ export default function LetItJazzClient({ tracks }: Props) {
         >
           {tracks.map((track, index) => (
             <SwiperSlide key={track.videoId} onClick={() => onDirectionalSlideClick(index)}>
-              <img src={track.thumbnail} alt={track.title} />
+              <Image
+                src={track.thumbnail}
+                alt={track.title}
+                width={240}
+                height={240}
+                className="rounded-inherit"
+              />
               <div className="overlay">
                 <a href={track.url} target="_blank" rel="noopener noreferrer">
                   {/* @ts-expect-error ion-icon is a web component */}

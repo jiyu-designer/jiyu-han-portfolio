@@ -10,6 +10,8 @@ import {
   useSpring,
 } from "framer-motion";
 
+import Image from "next/image";
+
 /* Images per column — adjust freely */
 const colLeft = [
   "/images/dive-deep/artworks22.png",
@@ -68,7 +70,14 @@ function ParallaxColumn({
           {src.endsWith(".mp4") ? (
             <video src={src} autoPlay muted loop playsInline />
           ) : (
-            <img src={src} alt={`Dive Deep artwork ${i + 1}`} loading="lazy" />
+            <Image
+              src={src}
+              alt={`Dive Deep artwork ${i + 1}`}
+              width={600}
+              height={800}
+              sizes="(max-width: 768px) 33vw, 33vw"
+              className="w-full h-auto"
+            />
           )}
         </div>
       ))}

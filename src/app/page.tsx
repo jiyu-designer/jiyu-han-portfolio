@@ -136,6 +136,8 @@ export default function Home() {
     const btn = buttonRef.current;
     if (!btn) return;
 
+    if (window.innerWidth <= 768) return;
+
     const rect = btn.getBoundingClientRect();
     const nearestX = Math.max(rect.left, Math.min(clientX, rect.right));
     const nearestY = Math.max(rect.top, Math.min(clientY, rect.bottom));
@@ -191,7 +193,7 @@ export default function Home() {
   return (
     <main
       ref={mainRef}
-      className="hero-main flex h-screen w-full items-center justify-center overflow-hidden bg-black"
+      className="hero-main flex h-[100dvh] w-full items-center justify-center overflow-hidden bg-black"
       data-mask-visible={maskVisible}
       onMouseEnter={handleMouseEnter}
       onMouseDown={() => void unlockAudio()}

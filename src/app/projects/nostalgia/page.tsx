@@ -2,6 +2,7 @@
 
 import "./nostalgia.css";
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useCallback, useRef, useEffect } from "react";
 import {
   motion,
@@ -88,7 +89,11 @@ function ZoomImage({
   const y = useTransform(scrollYProgress, (latest) => {
     const t = Math.max(0, Math.min(1, (latest - start) / (end - start)));
     const vh = typeof window !== "undefined" ? window.innerHeight : 800;
-    const targetY = (row - 0.5) * 0.5 * vh;
+    // On mobile (80vh container), use 0.4 multiplier to fill the space without gaps
+    // On desktop (100vh container), use 0.5 multiplier for standard spacing
+    const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+    const multiplier = isMobile ? 0.4 : 0.5;
+    const targetY = (row - 0.5) * multiplier * vh;
     return t * targetY;
   });
 
@@ -115,7 +120,17 @@ function ZoomImage({
     );
   }
 
-  return <motion.img src={src} alt={alt} className="nostalgia-zoom__img" style={commonStyle} />;
+  return (
+    <motion.div style={commonStyle} className="nostalgia-zoom__img">
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        className="object-cover"
+        sizes="50vw"
+      />
+    </motion.div>
+  );
 }
 
 /* ── Precomputed card positions for each phase ── */
@@ -141,14 +156,18 @@ function cylinderAngle(i: number) {
 }
 
 function gridPos(i: number) {
-  const col = i % 4;
-  const row = Math.floor(i / 4);
-  const gap = 20;
-  const cardW = 180;
-  const cardH = 240;
-  const totalH = 3 * cardH + 2 * gap; // 760
+  // Use 3x5 layout on mobile, 4x3 on desktop
+  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+  const cols = isMobile ? 3 : 4;
+  const col = i % cols;
+  const row = Math.floor(i / cols);
+  const gap = isMobile ? 14 : 20;
+  const cardW = isMobile ? 80 : 180;
+  const cardH = isMobile ? 107 : 240; // maintain 3:4 aspect ratio
+  const rows = isMobile ? 4 : 2; // 5 rows total (0-4) on mobile, 3 rows (0-2) on desktop
+  const totalH = rows * cardH + rows * gap;
   return {
-    x: (col - 1.5) * (cardW + gap),
+    x: (col - (cols - 1) / 2) * (cardW + gap),
     y: row * (cardH + gap) - totalH / 2 + cardH / 2,
   };
 }
@@ -224,8 +243,13 @@ function LookbookCard({
 
   return (
     <motion.div className="nostalgia-lookbook__card" style={{ transform }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={`Lookbook ${index + 1}`} />
+      <Image
+        src={src}
+        alt={`Lookbook ${index + 1}`}
+        width={180}
+        height={240}
+        className="object-cover"
+      />
     </motion.div>
   );
 }
@@ -311,7 +335,7 @@ export default function NostalgiaPage() {
     const startPlayback = () => {
       if (started) return;
       started = true;
-      audio.play().then(() => setIsPlaying(true)).catch(() => {});
+      audio.play().then(() => setIsPlaying(true)).catch(() => { });
       cleanup();
     };
     const cleanup = () => {
@@ -350,6 +374,14 @@ export default function NostalgiaPage() {
   const [cursor, setCursor] = useState<{ x: number; y: number } | null>(null);
   const [isShowcaseHovered, setIsShowcaseHovered] = useState(false);
   const [showcaseIndex, setShowcaseIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     if (isShowcaseHovered) return;
@@ -402,16 +434,22 @@ export default function NostalgiaPage() {
           onMouseLeave={handleShowcaseLeave}
         >
           <AnimatePresence initial={false} mode="popLayout">
-            <motion.img
+            <motion.div
               key={showcaseIndex}
-              src={showcaseProducts[showcaseIndex].image}
-              alt={showcaseProducts[showcaseIndex].name}
               initial={{ x: "100%", opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: "-100%", opacity: 0 }}
               transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-            />
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+            >
+              <Image
+                src={showcaseProducts[showcaseIndex].image}
+                alt={showcaseProducts[showcaseIndex].name}
+                fill
+                className="object-cover"
+                sizes="50vw"
+              />
+            </motion.div>
           </AnimatePresence>
           {cursor && (
             <motion.div
@@ -426,14 +464,14 @@ export default function NostalgiaPage() {
         </div>
         <div className="nostalgia-showcase__info-wrapper">
           <AnimatePresence mode="wait">
-            {isShowcaseHovered && (
+            {(isShowcaseHovered || isMobile) && (
               <motion.div
                 key={showcaseIndex}
                 className="nostalgia-showcase__info"
-                initial={{ opacity: 0, x: 20 }}
+                initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                transition={{ duration: 0.25 }}
+                exit={{ opacity: 0, x: -50 }}
+                transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
               >
                 <p className="nostalgia-showcase__name">{showcaseProducts[showcaseIndex].name}</p>
                 <p className="nostalgia-showcase__price">{showcaseProducts[showcaseIndex].price}</p>
