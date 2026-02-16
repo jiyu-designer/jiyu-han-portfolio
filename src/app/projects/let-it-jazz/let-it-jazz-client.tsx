@@ -47,6 +47,13 @@ interface Props {
   tracks: PlaylistItem[];
 }
 
+function formatTime(totalSeconds: number) {
+  const safe = Math.max(0, Math.floor(totalSeconds));
+  const minutes = Math.floor(safe / 60);
+  const seconds = safe % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
 export default function LetItJazzClient({ tracks }: Props) {
   const {
     progressRef,
@@ -58,6 +65,8 @@ export default function LetItJazzClient({ tracks }: Props) {
     onSwiperInit,
     onProgressInput,
     onDirectionalSlideClick,
+    currentTimeSec,
+    durationSec,
     currentTrack,
   } = useLetItJazz(tracks);
 
@@ -142,6 +151,10 @@ export default function LetItJazzClient({ tracks }: Props) {
           id="progress"
           onInput={onProgressInput}
         />
+        <div className="player-time">
+          <span>{formatTime(currentTimeSec)}</span>
+          <span>{formatTime(durationSec)}</span>
+        </div>
 
         <div className="controls">
           <button type="button" onClick={prev}>

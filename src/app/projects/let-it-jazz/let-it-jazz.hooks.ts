@@ -98,8 +98,12 @@ export function useLetItJazz(tracks: PlaylistItem[]) {
   const [currentIndex, setCurrentIndex] = useState(initialSlide);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playerReady, setPlayerReady] = useState(false);
+  const [currentTimeSec, setCurrentTimeSec] = useState(0);
+  const [durationSec, setDurationSec] = useState(0);
+  const timeSyncRef = useRef({ current: -1, duration: -1 });
   const currentIndexRef = useRef(initialSlide);
   const pendingPlayRef = useRef(false);
+  const skipSlideChangeIndexRef = useRef<number | null>(null);
   const containerRef = useRef<HTMLElement | null>(null);
   const wheelAccumRef = useRef(0);
   const wheelLockRef = useRef(false);
@@ -218,14 +222,20 @@ export function useLetItJazz(tracks: PlaylistItem[]) {
         onStateChange: (event) => {
           if (event.data === window.YT.PlayerState.ENDED) {
             const nextIdx = (currentIndexRef.current + 1) % tracks.length;
+            skipSlideChangeIndexRef.current = nextIdx;
             setCurrentIndex(nextIdx);
             swiperRef.current?.slideTo(nextIdx);
             playerRef.current?.loadVideoById(tracks[nextIdx].videoId);
+            playerRef.current?.playVideo();
           } else if (event.data === window.YT.PlayerState.PLAYING) {
             setIsPlaying(true);
+          } else if (event.data === window.YT.PlayerState.CUED) {
+            // Mobile Safari/Chrome can end up CUED after track change.
+            // Retry play to keep next/prev transitions seamless.
+            playerRef.current?.playVideo();
+            setIsPlaying(false);
           } else if (
             event.data === window.YT.PlayerState.PAUSED
-            || event.data === window.YT.PlayerState.CUED
           ) {
             setIsPlaying(false);
           }
@@ -252,6 +262,21 @@ export function useLetItJazz(tracks: PlaylistItem[]) {
           if (duration > 0) {
             progress.max = String(duration);
             progress.value = String(current);
+            const progressPct = Math.max(0, Math.min(100, (current / duration) * 100));
+            progress.style.setProperty("--progress-pct", `${progressPct}%`);
+          } else {
+            progress.style.setProperty("--progress-pct", "0%");
+          }
+
+          const roundedCurrent = Math.floor(current);
+          const roundedDuration = Math.floor(duration);
+          if (timeSyncRef.current.current !== roundedCurrent) {
+            timeSyncRef.current.current = roundedCurrent;
+            setCurrentTimeSec(Math.max(0, roundedCurrent));
+          }
+          if (timeSyncRef.current.duration !== roundedDuration) {
+            timeSyncRef.current.duration = roundedDuration;
+            setDurationSec(Math.max(0, roundedDuration));
           }
         } catch {
           // player not ready yet
@@ -289,6 +314,13 @@ export function useLetItJazz(tracks: PlaylistItem[]) {
           // On some mobile browsers, loadVideoById can end up in "cued/paused" state.
           // Explicit play keeps next/prev and swipe transitions reliably playing.
           player.playVideo();
+          window.setTimeout(() => {
+            try {
+              player.playVideo();
+            } catch {
+              // ignore follow-up autoplay failures
+            }
+          }, 120);
         } catch {
           pendingPlayRef.current = true;
         }
@@ -301,10 +333,10 @@ export function useLetItJazz(tracks: PlaylistItem[]) {
     if (tracks.length === 0) return;
     const active = swiperRef.current?.activeIndex ?? currentIndex;
     const nextIdx = (active + 1) % tracks.length;
+    skipSlideChangeIndexRef.current = nextIdx;
+    goToTrack(nextIdx);
     if (swiperRef.current) {
       swiperRef.current.slideTo(nextIdx);
-    } else {
-      goToTrack(nextIdx);
     }
   }, [currentIndex, tracks.length, goToTrack]);
 
@@ -312,10 +344,10 @@ export function useLetItJazz(tracks: PlaylistItem[]) {
     if (tracks.length === 0) return;
     const active = swiperRef.current?.activeIndex ?? currentIndex;
     const prevIdx = (active - 1 + tracks.length) % tracks.length;
+    skipSlideChangeIndexRef.current = prevIdx;
+    goToTrack(prevIdx);
     if (swiperRef.current) {
       swiperRef.current.slideTo(prevIdx);
-    } else {
-      goToTrack(prevIdx);
     }
   }, [currentIndex, tracks.length, goToTrack]);
 
@@ -361,6 +393,10 @@ export function useLetItJazz(tracks: PlaylistItem[]) {
   const onSlideChange = useCallback(
     (swiper: SwiperType) => {
       applySlideDepth(swiper, swiper.activeIndex);
+      if (skipSlideChangeIndexRef.current === swiper.activeIndex) {
+        skipSlideChangeIndexRef.current = null;
+        return;
+      }
       goToTrack(swiper.activeIndex);
     },
     [applySlideDepth, goToTrack]
@@ -376,6 +412,10 @@ export function useLetItJazz(tracks: PlaylistItem[]) {
     const progress = progressRef.current;
     if (player && progress) {
       player.seekTo(Number(progress.value), true);
+      const max = Number(progress.max || "0");
+      const current = Number(progress.value || "0");
+      const progressPct = max > 0 ? Math.max(0, Math.min(100, (current / max) * 100)) : 0;
+      progress.style.setProperty("--progress-pct", `${progressPct}%`);
     }
   }, []);
 
@@ -403,6 +443,8 @@ export function useLetItJazz(tracks: PlaylistItem[]) {
     onSwiperInit,
     onProgressInput,
     onDirectionalSlideClick,
+    currentTimeSec,
+    durationSec,
     currentTrack: tracks[currentIndex] ?? null,
   };
 }
