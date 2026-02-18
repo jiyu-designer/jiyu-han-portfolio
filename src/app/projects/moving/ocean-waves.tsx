@@ -21,15 +21,31 @@ export default function OceanWaves() {
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.domElement.style.touchAction = "none";
         container.appendChild(renderer.domElement);
 
-        // 마우스 좌표 추적
-        const mouse = new THREE.Vector2(0, 0);
-        const handleMouseMove = (e: MouseEvent) => {
-            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        // 포인터 좌표 추적 (마우스 + 터치)
+        const targetMouse = new THREE.Vector2(0, 0);
+        const smoothedMouse = new THREE.Vector2(0, 0);
+        let lastInteraction = performance.now();
+        const updatePointer = (clientX: number, clientY: number) => {
+            const rect = container.getBoundingClientRect();
+            const x = (clientX - rect.left) / rect.width;
+            const y = (clientY - rect.top) / rect.height;
+            targetMouse.x = x * 2 - 1;
+            targetMouse.y = -(y * 2 - 1);
+            lastInteraction = performance.now();
         };
-        window.addEventListener("mousemove", handleMouseMove);
+        const handlePointerMove = (e: PointerEvent) => {
+            updatePointer(e.clientX, e.clientY);
+        };
+        const handlePointerLeave = () => {
+            targetMouse.set(0, 0);
+        };
+        window.addEventListener("pointermove", handlePointerMove);
+        window.addEventListener("pointerdown", handlePointerMove);
+        window.addEventListener("pointerleave", handlePointerLeave);
+        window.addEventListener("pointercancel", handlePointerLeave);
 
         // --- 포인트 클라우드 지오메트리 (뒤쪽이 끊기지 않도록 크게) ---
         const geometry = new THREE.PlaneGeometry(50, 50, 250, 250);
@@ -39,12 +55,14 @@ export default function OceanWaves() {
             uniforms: {
                 uTime: { value: 0.0 },
                 uMouse: { value: new THREE.Vector2(0, 0) },
+                uInteraction: { value: 0.0 },
                 uColor: { value: new THREE.Color("#00d4ff") },
                 uPixelRatio: { value: renderer.getPixelRatio() },
             },
             vertexShader: `
                 uniform float uTime;
                 uniform vec2 uMouse;
+                uniform float uInteraction;
                 uniform float uPixelRatio;
                 varying float vElevation;
                 varying float vDepth;
@@ -64,12 +82,24 @@ export default function OceanWaves() {
                     elevation += sin(modelPosition.z * 0.8 + uTime * 1.0) * 0.3;
                     elevation += sin((modelPosition.x + modelPosition.z) * 0.3 + uTime * 0.8) * 0.2;
 
-                    // 마우스 인터랙션: 마우스 근처에서 솟아오름
-                    float dist = distance(modelPosition.xz, uMouse * 10.0);
-                    float mouseInfluence = smoothstep(8.0, 0.0, dist) * 3.0;
-                    // 마우스 근처에 잔물결 추가
-                    float ripple = sin(dist * 3.0 - uTime * 4.0) * smoothstep(8.0, 1.0, dist) * 0.4;
-                    elevation += mouseInfluence + ripple;
+                    // 마우스 인터랙션: 물방울형 리플 대신 넓은 스웰 + 완만한 파도 전파
+                    vec2 mousePos = uMouse * 11.0;
+                    float dist = distance(modelPosition.xz, mousePos);
+                    float influenceFalloff = exp(-dist * 0.18);
+
+                    // 마우스 주변의 로컬 영역만 확실히 솟는 스웰
+                    float localSwell = smoothstep(6.2, 0.0, dist);
+                    float mouseInfluence = (influenceFalloff * 0.7 + localSwell * 1.75) * uInteraction;
+
+                    // 고주파 원형 리플 대신 저주파 파도열(장파) 느낌
+                    float longWave = sin(dist * 0.92 - uTime * 1.2) * localSwell * 0.08 * uInteraction;
+
+                    // 진행 방향성이 있는 보조 물결로 실제 파도 느낌 강화
+                    vec2 dir = normalize(modelPosition.xz - mousePos + vec2(0.0001));
+                    float directionalWave = sin(dot(dir, vec2(0.7, 1.0)) * 2.0 - uTime * 0.9)
+                                          * influenceFalloff * 0.045 * uInteraction;
+
+                    elevation += mouseInfluence + longWave + directionalWave;
 
                     modelPosition.y += elevation;
                     vElevation = elevation;
@@ -81,7 +111,7 @@ export default function OceanWaves() {
                     // 깊이에 따라 포인트 크기 조절 (가까울수록 크게, 멀수록 작게 → 3D 느낌)
                     vDepth = -viewPosition.z;
                     float sizeBase = 2.5;
-                    sizeBase += mouseInfluence * 2.5;
+                    sizeBase += mouseInfluence * 0.5;
                     gl_PointSize = sizeBase * uPixelRatio * (8.0 / vDepth);
                 }
             `,
@@ -125,6 +155,7 @@ export default function OceanWaves() {
 
         const points = new THREE.Points(geometry, pointsMaterial);
         points.rotation.x = -Math.PI * 0.45;
+        points.position.y = 2;
         scene.add(points);
 
         camera.position.set(0, 5, 12);
@@ -135,12 +166,16 @@ export default function OceanWaves() {
 
         function animate() {
             const elapsedTime = clock.getElapsedTime();
+            const idleTime = (performance.now() - lastInteraction) / 1000;
+            const interaction = Math.max(0.0, 1.0 - idleTime / 1.2);
 
             // 유니폼 업데이트
             pointsMaterial.uniforms.uTime.value = elapsedTime;
+            pointsMaterial.uniforms.uInteraction.value = interaction;
 
             // 마우스 위치 부드럽게 따라가기 (Lerp)
-            pointsMaterial.uniforms.uMouse.value.lerp(mouse, 0.05);
+            smoothedMouse.lerp(targetMouse, 0.075);
+            pointsMaterial.uniforms.uMouse.value.copy(smoothedMouse);
 
             renderer.render(scene, camera);
             animationId = requestAnimationFrame(animate);
@@ -161,7 +196,10 @@ export default function OceanWaves() {
         // Cleanup
         return () => {
             cancelAnimationFrame(animationId);
-            window.removeEventListener("mousemove", handleMouseMove);
+            window.removeEventListener("pointermove", handlePointerMove);
+            window.removeEventListener("pointerdown", handlePointerMove);
+            window.removeEventListener("pointerleave", handlePointerLeave);
+            window.removeEventListener("pointercancel", handlePointerLeave);
             window.removeEventListener("resize", handleResize);
             geometry.dispose();
             pointsMaterial.dispose();

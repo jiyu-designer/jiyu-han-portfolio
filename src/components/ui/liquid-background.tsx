@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import InteractiveText from "@/app/projects/moving/interactive-text";
 
 export function LiquidBackground() {
     const containerRef = useRef<HTMLDivElement>(null)
@@ -56,11 +55,6 @@ export function LiquidBackground() {
                 className="absolute top-0 left-0 right-0 bottom-0 overflow-hidden pointer-events-auto"
                 style={{ width: '100%', height: '100%' }}
             />
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                <div className="pointer-events-auto">
-                    <InteractiveText />
-                </div>
-            </div>
         </div>
     )
 }

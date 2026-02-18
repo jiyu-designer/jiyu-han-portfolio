@@ -12,6 +12,50 @@ import {
   MotionValue,
 } from "framer-motion";
 
+function LazyZoomVideo({
+  src,
+  style,
+}: {
+  src: string;
+  style: Record<string, unknown>;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "300px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <motion.div ref={ref} style={style} className="nostalgia-zoom__img">
+      {visible ? (
+        <video
+          src={src}
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+      ) : (
+        <div style={{ width: "100%", height: "100%", background: "#111" }} />
+      )}
+    </motion.div>
+  );
+}
+
 const zoomItems = [
   { src: "/images/Nostalgia/Nostalgia20.png", type: "image" as const },
   { src: "/images/Nostalgia/Nostalgia13.mp4", type: "video" as const },
@@ -108,15 +152,7 @@ function ZoomImage({
 
   if (type === "video") {
     return (
-      <motion.video
-        src={src}
-        className="nostalgia-zoom__img"
-        autoPlay
-        muted
-        loop
-        playsInline
-        style={commonStyle}
-      />
+      <LazyZoomVideo src={src} style={commonStyle} />
     );
   }
 
@@ -128,6 +164,7 @@ function ZoomImage({
         fill
         className="object-cover"
         sizes="50vw"
+        loading="lazy"
       />
     </motion.div>
   );
@@ -135,7 +172,22 @@ function ZoomImage({
 
 /* ── Precomputed card positions for each phase ── */
 const TOTAL = lookbookImages.length; // 12
-const CYL_RADIUS = 340;
+
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function getLookbookMetrics() {
+  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+  const vw = typeof window !== "undefined" ? window.innerWidth : 1440;
+  const cardW = isMobile ? 92 : clamp(vw * 0.14, 140, 210); // Match CSS clamp(140px, 14vw, 210px)
+  const cardH = isMobile ? 123 : (cardW * 4) / 3;
+  const gap = isMobile ? 14 : 32;
+  const cols = isMobile ? 3 : 4;
+  const rows = Math.ceil(TOTAL / cols);
+  const cylRadius = isMobile ? 340 : Math.max(430, ((cardW + 18) * TOTAL) / (Math.PI * 2));
+  return { isMobile, cardW, cardH, gap, cols, rows, cylRadius };
+}
 
 function scatteredPos(i: number) {
   const rad = (i * 137.5 * Math.PI) / 180;
@@ -156,16 +208,11 @@ function cylinderAngle(i: number) {
 }
 
 function gridPos(i: number) {
-  // Use 3x5 layout on mobile, 4x3 on desktop
-  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
-  const cols = isMobile ? 3 : 4;
+  // Use 3x4 layout on mobile, 4x3 on desktop
+  const { cols, rows, cardW, cardH, gap } = getLookbookMetrics();
   const col = i % cols;
   const row = Math.floor(i / cols);
-  const gap = isMobile ? 14 : 20;
-  const cardW = isMobile ? 92 : 180;
-  const cardH = isMobile ? 123 : 240; // maintain 3:4 aspect ratio
-  const rows = isMobile ? 4 : 2; // 5 rows total (0-4) on mobile, 3 rows (0-2) on desktop
-  const totalH = rows * cardH + rows * gap;
+  const totalH = rows * cardH + (rows - 1) * gap;
   return {
     x: (col - (cols - 1) / 2) * (cardW + gap),
     y: row * (cardH + gap) - totalH / 2 + cardH / 2,
@@ -194,7 +241,7 @@ function LookbookCard({
   const transform = useTransform(scrollYProgress, (p) => {
     let x: number, y: number, z: number, rY: number, rX: number, rZ: number;
     let mobileScale = 1;
-    const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+    const { isMobile, cylRadius } = getLookbookMetrics();
 
     if (p <= 0.15) {
       /* ── Scattered ── */
@@ -204,8 +251,8 @@ function LookbookCard({
     } else if (p <= 0.35) {
       /* ── Scattered → Cylinder ── */
       const t = smoothstep((p - 0.15) / 0.2);
-      const cX = Math.cos(cAngle) * CYL_RADIUS;
-      const cZ = Math.sin(cAngle) * CYL_RADIUS;
+      const cX = Math.cos(cAngle) * cylRadius;
+      const cZ = Math.sin(cAngle) * cylRadius;
       const faceY = 90 - (cAngle * 180) / Math.PI;
       x = lerp(s.x, cX, t);
       y = lerp(s.y, 0, t);
@@ -219,9 +266,9 @@ function LookbookCard({
       const rotProgress = (p - 0.35) / 0.25;
       const extra = rotProgress * Math.PI * 2;
       const cur = cAngle + extra;
-      x = Math.cos(cur) * CYL_RADIUS;
+      x = Math.cos(cur) * cylRadius;
       y = 0;
-      z = Math.sin(cur) * CYL_RADIUS;
+      z = Math.sin(cur) * cylRadius;
       rY = 90 - (cur * 180) / Math.PI;
       rX = 0; rZ = 0;
       if (isMobile) mobileScale = lerp(1.32, 1, smoothstep(rotProgress));
@@ -229,8 +276,8 @@ function LookbookCard({
       /* ── Cylinder → Grid ── */
       const t = smoothstep((p - 0.6) / 0.2);
       const endAngle = cAngle + Math.PI * 2;
-      const cX = Math.cos(endAngle) * CYL_RADIUS;
-      const cZ = Math.sin(endAngle) * CYL_RADIUS;
+      const cX = Math.cos(endAngle) * cylRadius;
+      const cZ = Math.sin(endAngle) * cylRadius;
       const faceY = 90 - (endAngle * 180) / Math.PI;
       x = lerp(cX, g.x, t);
       y = lerp(0, g.y, t);
@@ -254,6 +301,7 @@ function LookbookCard({
         width={180}
         height={240}
         className="object-cover"
+        loading="lazy"
       />
     </motion.div>
   );
@@ -424,6 +472,7 @@ export default function NostalgiaPage() {
           muted
           loop
           playsInline
+          preload="auto"
         />
         <div className="nostalgia-hero__overlay">
           <h1 className="nostalgia-hero__title">Nostalgia</h1>
@@ -453,6 +502,7 @@ export default function NostalgiaPage() {
                 fill
                 className="object-cover"
                 sizes="50vw"
+                loading="lazy"
               />
             </motion.div>
           </AnimatePresence>

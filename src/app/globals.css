@@ -201,10 +201,10 @@ body {
 /* Back to Home */
 
 .back-home {
-  position: absolute;
+  position: fixed;
   top: 24px;
   left: 24px;
-  z-index: 2;
+  z-index: 60;
   color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
   font-family: var(--font-montserrat), "Montserrat", sans-serif;
@@ -216,6 +216,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .back-home {
+    top: 16px;
+    left: 16px;
+  }
 }
 
 .back-home::before {

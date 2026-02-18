@@ -7,6 +7,7 @@ export interface PlaylistItem {
   thumbnail: string;
   videoId: string;
   url: string;
+  publishedAt: string;
 }
 
 export async function fetchPlaylistItems(): Promise<PlaylistItem[]> {
@@ -57,11 +58,16 @@ export async function fetchPlaylistItems(): Promise<PlaylistItem[]> {
           "",
         videoId,
         url: `https://www.youtube.com/watch?v=${videoId}`,
+        publishedAt: snippet.publishedAt ?? "",
       });
     }
 
     pageToken = data.nextPageToken ?? "";
   } while (pageToken);
 
-  return items;
+  return items.sort((a, b) => {
+    const timeA = Date.parse(a.publishedAt || "");
+    const timeB = Date.parse(b.publishedAt || "");
+    return (Number.isNaN(timeB) ? 0 : timeB) - (Number.isNaN(timeA) ? 0 : timeA);
+  });
 }

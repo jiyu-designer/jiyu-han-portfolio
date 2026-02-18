@@ -13,8 +13,10 @@ export default function ParticleText() {
         if (!ctx) return;
 
         let particles: Particle[] = [];
+        let isMobile = false;
         let animationFrameId: number;
-        let mouse = { x: -1000, y: -1000, radius: 150 }; // Increased radius
+        const isMobileViewport = window.matchMedia("(max-width: 768px)").matches;
+        let mouse = { x: -1000, y: -1000, radius: isMobileViewport ? 220 : 150 };
 
         // Handle Resize
         const handleResize = () => {
@@ -23,14 +25,20 @@ export default function ParticleText() {
             init();
         };
 
-        // Handle Mouse
-        const handleMouseMove = (e: MouseEvent) => {
+        // Handle pointer (mouse + touch)
+        const updatePointer = (clientX: number, clientY: number) => {
             const rect = canvas.getBoundingClientRect();
-            mouse.x = e.clientX - rect.left;
-            mouse.y = e.clientY - rect.top;
+            mouse.x = clientX - rect.left;
+            mouse.y = clientY - rect.top;
+        };
+        const handlePointerMove = (e: PointerEvent) => {
+            updatePointer(e.clientX, e.clientY);
+        };
+        const handlePointerDown = (e: PointerEvent) => {
+            updatePointer(e.clientX, e.clientY);
         };
 
-        const handleMouseLeave = () => {
+        const handlePointerLeave = () => {
             mouse.x = -1000;
             mouse.y = -1000;
         }
@@ -55,11 +63,11 @@ export default function ParticleText() {
                 this.vy = 0;
                 this.baseX = x;
                 this.baseY = y;
-                this.size = 2;
-                this.density = (Math.random() * 10) + 2; // Reduced density for lower mass feel
+                this.size = isMobile ? 1.4 : 2;
+                this.density = (Math.random() * 3) + 2;
                 this.color = "white";
-                this.friction = 0.95; // Friction to slow down
-                this.ease = 0.05; // Spring strength
+                this.friction = 0.9;
+                this.ease = 0.035;
             }
 
             draw() {
@@ -76,20 +84,18 @@ export default function ParticleText() {
                 let dx = mouse.x - this.x;
                 let dy = mouse.y - this.y;
                 let distance = Math.sqrt(dx * dx + dy * dy);
-                let forceDirectionX = dx / distance;
-                let forceDirectionY = dy / distance;
                 let maxDistance = mouse.radius;
 
                 // Repulsion
-                if (distance < maxDistance) {
-                    // Normalize force: closer = stronger
-                    const force = (maxDistance - distance) / maxDistance;
-                    // Push away
-                    const directionX = forceDirectionX * force * this.density;
-                    const directionY = forceDirectionY * force * this.density;
+                if (distance > 0.001 && distance < maxDistance) {
+                    // Smoother falloff near edge and less abrupt force on close contact
+                    const force = Math.pow((maxDistance - distance) / maxDistance, 1.35);
+                    const forceDirectionX = dx / distance;
+                    const forceDirectionY = dy / distance;
+                    const repulsion = isMobile ? 0.55 : 0.75;
 
-                    this.vx -= directionX;
-                    this.vy -= directionY;
+                    this.vx -= forceDirectionX * force * this.density * repulsion;
+                    this.vy -= forceDirectionY * force * this.density * repulsion;
                 }
 
                 // 2. Spring back to original position
@@ -105,6 +111,11 @@ export default function ParticleText() {
                 this.vx *= this.friction;
                 this.vy *= this.friction;
 
+                // 3.5 Clamp speed to avoid sudden spikes
+                const maxSpeed = isMobile ? 5 : 6;
+                this.vx = Math.max(-maxSpeed, Math.min(maxSpeed, this.vx));
+                this.vy = Math.max(-maxSpeed, Math.min(maxSpeed, this.vy));
+
                 // 4. Update Position
                 this.x += this.vx;
                 this.y += this.vy;
@@ -117,6 +128,7 @@ export default function ParticleText() {
 
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            isMobile = window.matchMedia("(max-width: 768px)").matches;
 
             // Draw text to get pixel data
             ctx.fillStyle = "white";
@@ -126,7 +138,7 @@ export default function ParticleText() {
             ctx.font = `900 ${fontSize}px Montserrat`;
             const text = "MOVING";
             const measurements = ctx.measureText(text);
-            const targetWidth = canvas.width * 0.8;
+            const targetWidth = isMobile ? canvas.height * 0.7 : canvas.width * 0.8;
 
             // Simple proportion: targetFontSize / currentFontSize = targetWidth / currentWidth
             fontSize = (targetWidth / measurements.width) * fontSize;
@@ -136,13 +148,19 @@ export default function ParticleText() {
 
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            if (isMobile) {
+                ctx.rotate(Math.PI / 2);
+            }
+            ctx.fillText(text, 0, 0);
+            ctx.restore();
 
             const textCoordinates = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            const step = 4;
+            const step = isMobile ? 2 : 4;
             for (let y = 0, y2 = textCoordinates.height; y < y2; y += step) {
                 for (let x = 0, x2 = textCoordinates.width; x < x2; x += step) {
                     if (textCoordinates.data[(y * 4 * textCoordinates.width) + (x * 4) + 3] > 128) {
@@ -166,13 +184,19 @@ export default function ParticleText() {
         animate();
 
         window.addEventListener("resize", handleResize);
-        window.addEventListener("mousemove", handleMouseMove);
-        window.addEventListener("mouseout", handleMouseLeave);
+        window.addEventListener("pointermove", handlePointerMove);
+        window.addEventListener("pointerdown", handlePointerDown);
+        window.addEventListener("pointerup", handlePointerLeave);
+        window.addEventListener("pointercancel", handlePointerLeave);
+        window.addEventListener("pointerleave", handlePointerLeave);
 
         return () => {
             window.removeEventListener("resize", handleResize);
-            window.removeEventListener("mousemove", handleMouseMove);
-            window.removeEventListener("mouseout", handleMouseLeave);
+            window.removeEventListener("pointermove", handlePointerMove);
+            window.removeEventListener("pointerdown", handlePointerDown);
+            window.removeEventListener("pointerup", handlePointerLeave);
+            window.removeEventListener("pointercancel", handlePointerLeave);
+            window.removeEventListener("pointerleave", handlePointerLeave);
             cancelAnimationFrame(animationFrameId);
         };
     }, []);
@@ -189,6 +213,7 @@ export default function ParticleText() {
                 top: 0,
                 left: 0,
                 zIndex: 1,
+                touchAction: "none",
             }}
         />
     );

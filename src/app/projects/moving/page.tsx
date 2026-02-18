@@ -30,7 +30,7 @@ export default function MovingPage() {
 
     return (
         <div className="moving-project relative overflow-hidden">
-            <Link href="/" className="back-home absolute top-8 left-8 z-50 mix-blend-difference">
+            <Link href="/" className="back-home mix-blend-difference">
                 Back to Home
             </Link>
 

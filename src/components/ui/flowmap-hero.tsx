@@ -158,12 +158,25 @@ export function FlowmapHero({ text = "JIYU HAN" }: FlowmapHeroProps) {
       maskCtx.fillStyle = "#000";
       maskCtx.fillRect(0, 0, width, height);
 
-      const fontSize = Math.min(width * 0.18, height * 0.7);
+      let fontSize = 100;
       maskCtx.fillStyle = "#fff";
       maskCtx.textAlign = "center";
       maskCtx.textBaseline = "middle";
-      maskCtx.font = `900 ${fontSize}px Montserrat, sans-serif`;
-      maskCtx.fillText(text.toUpperCase(), width / 2, height / 2);
+      maskCtx.font = `900 ${fontSize}px Montserrat`;
+      const upperText = text.toUpperCase();
+      const measurements = maskCtx.measureText(upperText);
+      const targetWidth = window.matchMedia("(max-width: 768px)").matches
+        ? height * 0.7
+        : width * 0.8;
+      fontSize = (targetWidth / measurements.width) * fontSize;
+      maskCtx.font = `900 ${fontSize}px Montserrat`;
+      maskCtx.save();
+      maskCtx.translate(width / 2, height / 2);
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        maskCtx.rotate(Math.PI / 2);
+      }
+      maskCtx.fillText(upperText, 0, 0);
+      maskCtx.restore();
 
       maskTexture.image = maskCanvas;
     }

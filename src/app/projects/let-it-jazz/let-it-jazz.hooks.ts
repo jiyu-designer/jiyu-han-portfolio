@@ -94,7 +94,7 @@ export function useLetItJazz(tracks: PlaylistItem[]) {
   const progressRef = useRef<HTMLInputElement | null>(null);
   const swiperRef = useRef<SwiperType | null>(null);
   const animFrameRef = useRef<number>(0);
-  const initialSlide = Math.min(3, Math.max(0, tracks.length - 1));
+  const initialSlide = 0;
   const [currentIndex, setCurrentIndex] = useState(initialSlide);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playerReady, setPlayerReady] = useState(false);

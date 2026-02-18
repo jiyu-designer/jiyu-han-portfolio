@@ -106,7 +106,7 @@ export default function LetItJazzClient({ tracks }: Props) {
           centeredSlides={true}
           slidesPerView="auto"
           slideToClickedSlide={true}
-          initialSlide={Math.min(3, tracks.length - 1)}
+          initialSlide={0}
           spaceBetween={40}
           coverflowEffect={{
             rotate: 25,

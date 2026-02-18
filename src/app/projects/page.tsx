@@ -4,7 +4,7 @@ import "./projects.css";
 export default function ProjectsPage() {
   const projects = [
     { href: "/projects/let-it-jazz", category: "AI Music", heading: "Let it jazz", image: "/images/projects/Letitjazz-main.png" },
-    { href: "/projects/dive-deep", category: "AI Artworks", heading: "Beyond with Humanity", image: "/images/projects/Divedeep-main.png" },
+    { href: "/projects/beyond-with-humanity", category: "AI Artworks", heading: "Beyond with Humanity", image: "/images/projects/Divedeep-main.png" },
     { href: "/projects/moving", category: "Media Art", heading: "Moving", image: "/images/projects/Moving-main.png" },
     { href: "/projects/nostalgia", category: "Virtual Brand", heading: "Nostalgia", image: "/images/projects/Noting-main.png" },
     { href: "https://linkstash.vercel.app/", category: "SaaS", heading: "LinkStash", image: "/images/projects/Linkstash-main.png", external: true },

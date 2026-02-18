@@ -406,6 +406,20 @@
     justify-content: center;
   }
 
+  /* Mobile only: overscan gradient so side blur doesn't look clipped */
+  .gradient-bg {
+    inset: -8% -12%;
+    width: auto;
+    height: auto;
+  }
+
+  .gradient-bg .gradients-container {
+    width: 116%;
+    height: 116%;
+    margin-left: -8%;
+    margin-top: -8%;
+  }
+
   .album-cover {
     transform: translateY(40px);
   }
