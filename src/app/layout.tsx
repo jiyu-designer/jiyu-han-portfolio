@@ -31,17 +31,18 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Jiyu Han | Portfoilo",
-  description: "Jiyu Han Portfolio",
+  metadataBase: new URL("https://jiyu-han-portfolio.vercel.app"),
+  title: "Jiyu Han | Portfolio",
+  description: "Jiyu Han — creative developer building AI music, generative art, media art, and virtual brand experiences.",
   openGraph: {
-    title: "Jiyu Han | Portfoilo",
-    description: "Jiyu Han Portfolio",
+    title: "Jiyu Han | Portfolio",
+    description: "Jiyu Han — creative developer building AI music, generative art, media art, and virtual brand experiences.",
     images: [{ url: "/images/Thumbnail.png" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Jiyu Han | Portfoilo",
-    description: "Jiyu Han Portfolio",
+    title: "Jiyu Han | Portfolio",
+    description: "Jiyu Han — creative developer building AI music, generative art, media art, and virtual brand experiences.",
     images: ["/images/Thumbnail.png"],
   },
 };

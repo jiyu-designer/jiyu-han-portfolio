@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Renderer,
   Vec2,
@@ -67,10 +67,19 @@ interface FlowmapHeroProps {
 
 export function FlowmapHero({ text = "JIYU HAN" }: FlowmapHeroProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [webglSupported, setWebglSupported] = useState(true);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+
+    // WebGL support check
+    const testCanvas = document.createElement("canvas");
+    const testGl = testCanvas.getContext("webgl") || testCanvas.getContext("experimental-webgl");
+    if (!testGl) {
+      setWebglSupported(false);
+      return;
+    }
 
     const renderer = new Renderer({ dpr: 2 });
     const gl = renderer.gl;
@@ -288,6 +297,14 @@ export function FlowmapHero({ text = "JIYU HAN" }: FlowmapHeroProps) {
       }
     };
   }, [text]);
+
+  if (!webglSupported) {
+    return (
+      <div className="flowmap-container" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ color: "#fff", textAlign: "center", padding: "2rem" }}>WebGL is not supported in your browser.</p>
+      </div>
+    );
+  }
 
   return (
     <div ref={containerRef} className="flowmap-container" />

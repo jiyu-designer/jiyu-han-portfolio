@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Jiyu Han — Portfolio
 
-## Getting Started
+Personal portfolio of Jiyu Han, a creative developer building at the intersection of AI, generative art, and interactive experiences.
 
-First, run the development server:
+**Live:** https://jiyuhan.com
+
+---
+
+## Projects
+
+| Project | Description | Tech |
+|---------|-------------|------|
+| **Let it Jazz** | AI-curated jazz music player with YouTube API, coverflow album UI, and ambient gradient visuals | Next.js, YouTube Data API v3, Swiper |
+| **Beyond with Humanity** | Parallax gallery of AI-generated artworks | Next.js, Framer Motion |
+| **Moving** | Four interactive media art visualizations (particle text, flowmap, liquid background, ocean waves) | Three.js, OGL, Canvas 2D |
+| **Nostalgia** | Virtual jewelry brand — 3D lookbook, scroll-driven zoom gallery, product showcase | Next.js, Framer Motion, Three.js |
+| **LinkStash** | SaaS link management app | Next.js |
+
+---
+
+## Tech Stack
+
+- **Framework:** Next.js 15 (App Router)
+- **Styling:** Tailwind CSS, CSS Modules
+- **Animation:** Framer Motion
+- **3D / WebGL:** Three.js, OGL
+- **Fonts:** Poppins, Montserrat (Google Fonts)
+- **Deployment:** Vercel
+
+---
+
+## Local Development
 
 ```bash
+# Install dependencies
+npm install
+
+# Copy environment variables
+cp .env.local.example .env.local
+# Then fill in your YOUTUBE_API_KEY
+
+# Start dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment Variables
 
-## Learn More
+| Variable | Description |
+|----------|-------------|
+| `YOUTUBE_API_KEY` | YouTube Data API v3 key — used to fetch the Let it Jazz playlist |
 
-To learn more about Next.js, take a look at the following resources:
+See `.env.local.example` for the template.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Build & Deploy
 
-## Deploy on Vercel
+```bash
+npm run build   # production build
+npm run start   # start production server locally
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Deployed automatically via Vercel on push to `main`.

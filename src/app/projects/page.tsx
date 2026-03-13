@@ -1,5 +1,16 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import "./projects.css";
+
+export const metadata: Metadata = {
+  title: "Projects | Jiyu Han",
+  description: "A curated collection of creative projects — AI music, generative art, media art, and virtual brand design.",
+  openGraph: {
+    title: "Projects | Jiyu Han",
+    description: "A curated collection of creative projects — AI music, generative art, media art, and virtual brand design.",
+    images: [{ url: "/images/Thumbnail.png" }],
+  },
+};
 
 export default function ProjectsPage() {
   const projects = [
@@ -27,6 +38,7 @@ export default function ProjectsPage() {
                 fill
                 className="object-cover"
                 sizes="(max-width: 539px) 100vw, (max-width: 959px) 50vw, 20vw"
+                priority={project.heading === "Let it jazz"}
               />
             </div>
             <div className="card__content">

@@ -8,11 +8,13 @@ import {
   useScroll,
   useTransform,
   useSpring,
+  useReducedMotion,
 } from "framer-motion";
 import Image from "next/image";
 
 const springConfig = { stiffness: 120, damping: 30, mass: 0.5 };
 const BATCH_SIZE = 6;
+const NO_MOTION_SPRING = { stiffness: 1000, damping: 100, mass: 0.01 };
 
 function LazyVideo({ src }: { src: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -55,9 +57,10 @@ function ParallaxColumn({
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
-  const rawY = useTransform(scrollYProgress, [0, 1], [0, speed]);
-  const y = useSpring(rawY, springConfig);
+  const rawY = useTransform(scrollYProgress, [0, 1], [0, prefersReducedMotion ? 0 : speed]);
+  const y = useSpring(rawY, prefersReducedMotion ? NO_MOTION_SPRING : springConfig);
 
   const [loadCount, setLoadCount] = useState(BATCH_SIZE);
 

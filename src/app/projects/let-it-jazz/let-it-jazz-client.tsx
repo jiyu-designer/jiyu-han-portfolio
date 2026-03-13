@@ -55,6 +55,17 @@ function formatTime(totalSeconds: number) {
 }
 
 export default function LetItJazzClient({ tracks }: Props) {
+  if (tracks.length === 0) {
+    return (
+      <div className="letitjazz">
+        <Link href="/" className="back-home">Back to Home</Link>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "#fff", textAlign: "center", padding: "2rem" }}>
+          <p>Unable to load tracks. Please try again later.</p>
+        </div>
+      </div>
+    );
+  }
+
   const {
     progressRef,
     isPlaying,
@@ -125,6 +136,7 @@ export default function LetItJazzClient({ tracks }: Props) {
                 alt={track.title}
                 width={240}
                 height={240}
+                sizes="240px"
                 className="rounded-inherit"
               />
               <div className="overlay">

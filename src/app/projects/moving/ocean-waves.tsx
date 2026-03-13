@@ -1,32 +1,52 @@
 "use client";
 
 import React, { useRef, useEffect } from "react";
-import * as THREE from "three";
+import {
+    Scene,
+    PerspectiveCamera,
+    WebGLRenderer,
+    PlaneGeometry,
+    ShaderMaterial,
+    Color,
+    Vector2,
+    Clock,
+    Points,
+    AdditiveBlending,
+} from "three";
 
 export default function OceanWaves() {
     const containerRef = useRef<HTMLDivElement>(null);
+    const [webglSupported, setWebglSupported] = React.useState(true);
 
     useEffect(() => {
         const container = containerRef.current;
         if (!container) return;
 
+        // WebGL support check
+        const testCanvas = document.createElement("canvas");
+        const testGl = testCanvas.getContext("webgl") || testCanvas.getContext("experimental-webgl");
+        if (!testGl) {
+            setWebglSupported(false);
+            return;
+        }
+
         // --- 초기 설정 ---
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(
+        const scene = new Scene();
+        const camera = new PerspectiveCamera(
             75,
             container.clientWidth / container.clientHeight,
             0.1,
             1000
         );
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        const renderer = new WebGLRenderer({ antialias: true });
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(container.clientWidth, container.clientHeight);
         renderer.domElement.style.touchAction = "none";
         container.appendChild(renderer.domElement);
 
         // 포인터 좌표 추적 (마우스 + 터치)
-        const targetMouse = new THREE.Vector2(0, 0);
-        const smoothedMouse = new THREE.Vector2(0, 0);
+        const targetMouse = new Vector2(0, 0);
+        const smoothedMouse = new Vector2(0, 0);
         let lastInteraction = performance.now();
         const updatePointer = (clientX: number, clientY: number) => {
             const rect = container.getBoundingClientRect();
@@ -48,15 +68,15 @@ export default function OceanWaves() {
         window.addEventListener("pointercancel", handlePointerLeave);
 
         // --- 포인트 클라우드 지오메트리 (뒤쪽이 끊기지 않도록 크게) ---
-        const geometry = new THREE.PlaneGeometry(50, 50, 250, 250);
+        const geometry = new PlaneGeometry(50, 50, 250, 250);
 
         // --- 포인트 클라우드 쉐이더 매테리얼 ---
-        const pointsMaterial = new THREE.ShaderMaterial({
+        const pointsMaterial = new ShaderMaterial({
             uniforms: {
                 uTime: { value: 0.0 },
-                uMouse: { value: new THREE.Vector2(0, 0) },
+                uMouse: { value: new Vector2(0, 0) },
                 uInteraction: { value: 0.0 },
-                uColor: { value: new THREE.Color("#00d4ff") },
+                uColor: { value: new Color("#00d4ff") },
                 uPixelRatio: { value: renderer.getPixelRatio() },
             },
             vertexShader: `
@@ -150,10 +170,10 @@ export default function OceanWaves() {
             `,
             transparent: true,
             depthWrite: false,
-            blending: THREE.AdditiveBlending,
+            blending: AdditiveBlending,
         });
 
-        const points = new THREE.Points(geometry, pointsMaterial);
+        const points = new Points(geometry, pointsMaterial);
         points.rotation.x = -Math.PI * 0.45;
         points.position.y = 2;
         scene.add(points);
@@ -161,7 +181,7 @@ export default function OceanWaves() {
         camera.position.set(0, 5, 12);
 
         // --- 애니메이션 루프 ---
-        const clock = new THREE.Clock();
+        const clock = new Clock();
         let animationId: number;
 
         function animate() {
@@ -209,6 +229,14 @@ export default function OceanWaves() {
             }
         };
     }, []);
+
+    if (!webglSupported) {
+        return (
+            <div style={{ width: "100%", height: "100%", position: "absolute", inset: 0, background: "#000", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <p style={{ color: "#fff", textAlign: "center", padding: "2rem" }}>WebGL is not supported in your browser.</p>
+            </div>
+        );
+    }
 
     return (
         <div

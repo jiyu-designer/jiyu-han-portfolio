@@ -1,6 +1,17 @@
+import type { Metadata } from "next";
 import fs from "fs";
 import path from "path";
 import BeyondWithHumanityClient from "./beyond-with-humanity-client";
+
+export const metadata: Metadata = {
+  title: "Beyond with Humanity | Jiyu Han",
+  description: "A parallax gallery of AI-generated artworks exploring the intersection of human creativity and machine intelligence.",
+  openGraph: {
+    title: "Beyond with Humanity | Jiyu Han",
+    description: "A parallax gallery of AI-generated artworks exploring the intersection of human creativity and machine intelligence.",
+    images: [{ url: "/images/projects/Divedeep-main.png" }],
+  },
+};
 
 function getArtworks(): { colLeft: string[]; colCenter: string[]; colRight: string[] } {
   const dir = path.join(process.cwd(), "public/images/beyond-with-humanity");

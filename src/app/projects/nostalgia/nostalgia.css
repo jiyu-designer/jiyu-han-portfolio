@@ -242,6 +242,20 @@
   border-color: #fff;
 }
 
+/* ── Reduced Motion ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .nostalgia-zoom__img,
+  .nostalgia-lookbook__card {
+    will-change: auto;
+  }
+
+  .nostalgia-bgm-btn,
+  .nostalgia-showcase__dot {
+    transition: none;
+  }
+}
+
 /* ── Responsive ── */
 
 @media (max-width: 768px) {

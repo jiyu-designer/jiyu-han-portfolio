@@ -51,6 +51,24 @@
   transform: scale(1.03);
 }
 
+/* ── Reduced Motion ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .dd-col {
+    will-change: auto;
+  }
+
+  .dd-item img,
+  .dd-item video {
+    transition: none;
+  }
+
+  .dd-item:hover img,
+  .dd-item:hover video {
+    transform: none;
+  }
+}
+
 /* Responsive */
 
 @media (max-width: 768px) {
